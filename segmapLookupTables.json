@@ -1,0 +1,22 @@
+{
+  "diff-lookup-table": {
+    "BACKGROUND": 10,
+    "CTX-LH-PARSOPERCULARIS": 11,
+    "CTX-LH-PARSTRIANGULARIS": 12,
+    "CTX-LH-SUPERIORTEMPORAL": 13,
+    "CTX-RH-PARSOPERCULARIS": 21,
+    "CTX-RH-PARSTRIANGULARIS": 22,
+    "CTX-RH-SUPERIORTEMPORAL": 23
+  },
+  "unified-lookup-table": {
+    "BACKGROUND": 10,
+    "PARSOPERCULARIS": 1,
+    "PARSTRIANGULARIS": 2,
+    "SUPERIORTEMPORAL": 3
+  },
+  "minimal-lookup-table": {
+    "BACKGROUND": 10,
+    "BROCA": 1,
+    "WERNICKE": 2
+  }
+}
