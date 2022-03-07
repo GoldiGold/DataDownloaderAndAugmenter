@@ -67,11 +67,14 @@ def find_values_mapping(lookup_table, new_lookup_table):
     '''
     conversion = {}
     for key in lookup_table.keys():
-        last_name = key.split('-')[-1]
-        '''
-        This line creates the conversion maps between the values in the lookup table and the new lookup table 
-        '''
-        conversion[lookup_table[key]] = new_lookup_table[last_name]
+        for key2 in new_lookup_table.keys():
+            if key2 in key:
+                '''
+                        This line creates the conversion maps between the values in the lookup table and the new lookup table 
+                        '''
+                conversion[lookup_table[key]] = new_lookup_table[key2]
+        # last_name = key.split('-')[-1]
+    print(conversion)
     return conversion
 
 
@@ -93,6 +96,12 @@ def update_main(brain_ids=None):
 
 
 if __name__ == '__main__':
-    _, names = get_dataset_names()
-    # print(type(names[0]))
-    update_main(names)
+    lookup_table_main = load_lookup_table('/home/cheng/PycharmProjects/DataDownloaderAndAugmenter/lookupTable.json')
+    unified_table = load_lookup_table('/home/cheng/PycharmProjects/DataDownloaderAndAugmenter/segmapLookupTables.json',
+                                      lookup_name='unified-lookup-table')
+    conversion = find_values_mapping(lookup_table_main, lookup_table_main)
+    nifti_image = update_single(100307, lookup_table_main, conversion, bg_value=2)
+    nib.nifti1.save(nifti_image, os.path.join(consts.UNIFIED_DIR, f'orig-value2mask-{100307}.nii.gz'))
+    # _, names = get_dataset_names()
+    # # print(type(names[0]))
+    # update_main(names)
