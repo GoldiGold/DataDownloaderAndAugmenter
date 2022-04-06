@@ -1,5 +1,5 @@
 import os
-# Online Python - IDE, Editor, Compiler, Interpreter
+import shutil
 t1w_src_path_suffix = 'enter the real one'
 t1w_dst_path_suffix = 'enter the real one'
 
@@ -12,7 +12,7 @@ def copy_masks(src_dataset: str, dst_dataset: str):
 			if os.path.isdir(t1w_path_dst):
 				t1w_dst_file = os.path.join(t1w_path_dst, t1w_dst_path_suffix)
 				if not os.path.exists(t1w_dst_file):
-					copy(t1w_src_file, t1w_dst_file)
+					shutil.copy(t1w_src_file, t1w_dst_file)
 		else: 
 			print(f'ERROR couldnt copy t1w of brain number {idx}')
 		mask_src_file = os.path.join(src_dataset, idx, mask_src_path_suffix)
@@ -23,6 +23,6 @@ def copy_masks(src_dataset: str, dst_dataset: str):
 			if os.path.isdir(mask_path_dst):
 				mask_dst_file = os.path.join(mask_path_dst, mask_dst_path_suffix)
 				if not os.path.exists(mask_dst_file):
-					copy(mask_src_file, mask_dst_file)
+					shutil.copy(mask_src_file, mask_dst_file)
 		else:
 			print(f'ERROR couldnt copy mask of brain number {idx}')
