@@ -1,0 +1,30 @@
+{
+  "all regions and sides split": {
+    "BACKGROUND": 10,
+    "CTX-LH-PARSOPERCULARIS": 11,
+    "CTX-LH-PARSTRIANGULARIS": 12,
+    "CTX-LH-SUPERIORTEMPORAL": 13,
+    "CTX-RH-PARSOPERCULARIS": 21,
+    "CTX-RH-PARSTRIANGULARIS": 22,
+    "CTX-RH-SUPERIORTEMPORAL": 23
+  },
+  "all regions split": {
+    "BACKGROUND": 10,
+    "PARSOPERCULARIS": 11,
+    "PARSTRIANGULARIS": 12,
+    "SUPERIORTEMPORAL": 13
+  },
+  "all sides split": {
+    "BACKGROUND": 10,
+    "CTX-LH-BROCA": 11,
+    "CTX-LH-WERNICKE": 12,
+    "CTX-RH-BROCA": 21,
+    "CTX-RH-WERNICKE": 22
+  },
+  "Minimal split": {
+    "BACKGROUND": 10,
+    "BROCA": 11,
+    "WERNICKE": 12
+  }
+
+}

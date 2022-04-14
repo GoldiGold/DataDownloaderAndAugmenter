@@ -122,7 +122,6 @@ def main(data_dir: str = consts.DATA_DIR, wb_dir: str = consts.WB_DIR):
     print(count)
     return count
 
-
 if __name__ == '__main__':
     _, names = get_dataset_names()
     # lst = str(names)
