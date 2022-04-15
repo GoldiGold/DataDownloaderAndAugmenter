@@ -18,6 +18,8 @@ def update_single(brain_id: int, lookup_table: dict, label2new_label: dict, labe
     This function takes the aparc+aseg mask and extract only the labels we want to our research, it also gives them new
     values according to the conversion table (that is created from 2 lookup tables (old - values in original and new -
     values we set to be in the new). and returns a new mask with only the values we want.
+    :param label2value:
+    :param label2new_label:
     :param brain_id: the brain (patient) id number to find in the dataset
     :param lookup_table: the table that maps the original labels and the original values in the aprac+aseg file.
     :param conversion_table: a table between the values of the old -> new tables. state the new voxel values
@@ -31,7 +33,7 @@ def update_single(brain_id: int, lookup_table: dict, label2new_label: dict, labe
     #       f'mask 3D size is: 1st X 2nd X 3rd = {mask.shape[0] * mask.shape[1] * mask.shape[2]}')
     hdr = mask.header
     # print(mask.file_map, hdr.get_xyzt_units(), type(hdr), '\n', hdr.get_zooms(), '\nheader:', hdr)
-
+    value2label_orig = {value: key for key, value in lookup_table.items()}
     voxels = mask.get_fdata()
     # print(type(voxels), voxels.shape, np.max(voxels), np.min(voxels))
     vox_copy = np.copy(voxels)
@@ -42,7 +44,9 @@ def update_single(brain_id: int, lookup_table: dict, label2new_label: dict, labe
                 if vox_copy[i, j, k] not in lookup_table_values:
                     vox_copy[i, j, k] = 0 if vox_copy[i, j, k] == 0 else bg_value
                 else:
-                    vox_copy[i, j, k] = conversion_table[vox_copy[i, j, k]]
+                    vox_copy[i, j, k] = label2value[  # The new value for the new label
+                        label2new_label[  # The new label for the original label
+                            value2label_orig[i, j, k]]]  # The label of the original value
     new_mask = nib.nifti1.Nifti1Image(vox_copy, mask.affine, header=hdr.copy())
     return new_mask
 
@@ -76,6 +80,14 @@ def find_values_mapping(lookup_table, new_lookup_table):
         # last_name = key.split('-')[-1]
     print(conversion)
     return conversion
+
+
+def change_all_masks(label2new_label_name: str, label2value_name: str, brains_path, new_masks_path, brain_ids=None):
+    if brain_ids is None:
+        brain_ids = []
+    count = 0
+    lookup_table = load_lookup_table('/home/cheng/PycharmProjects/DataDownloaderAndAugmenter/lookupTable.json')
+#     TODO: FINISH THE LOOP THAT ALSO SAVES THE NIFTI IMAGES
 
 
 def update_main(brain_ids=None):
