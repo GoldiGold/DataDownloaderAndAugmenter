@@ -12,12 +12,12 @@ differentiate between left and right hemisphere)
 '''
 
 
-def update_single(brain_id: int, lookup_table: dict, label2new_label: dict, label2value: dict, bg_value: int = 0,
-                  data_dir: str = consts.DATASET_DIR):
+def update_single(lookup_table: dict, label2new_label: dict, label2value: dict, mask_path: str, bg_value: int = 0):
     '''
     This function takes the aparc+aseg mask and extract only the labels we want to our research, it also gives them new
     values according to the conversion table (that is created from 2 lookup tables (old - values in original and new -
     values we set to be in the new). and returns a new mask with only the values we want.
+    :param mask_path:
     :param label2value:
     :param label2new_label:
     :param brain_id: the brain (patient) id number to find in the dataset
@@ -27,7 +27,7 @@ def update_single(brain_id: int, lookup_table: dict, label2new_label: dict, labe
     :param data_dir: that path to the Dataset.
     :return: a new Nifti1Image OR WE WILL SAVE IT HERE ALREADY AND WE WON'T RETURN ANYTHING.
     '''
-    mask_path = os.path.join(data_dir, str(brain_id), 'MNINonLinear', consts.MASK_NAME)
+    #  mask_path = os.path.join(data_dir, str(brain_id), 'MNINonLinear', consts.MASK_NAME)
     mask = nib.load(mask_path)
     # print(mask.shape, mask.get_data_dtype(), mask.affine.shape,
     #       f'mask 3D size is: 1st X 2nd X 3rd = {mask.shape[0] * mask.shape[1] * mask.shape[2]}')
@@ -42,7 +42,7 @@ def update_single(brain_id: int, lookup_table: dict, label2new_label: dict, labe
         for j in range(vox_copy.shape[1]):
             for k in range(vox_copy.shape[2]):
                 if vox_copy[i, j, k] not in lookup_table_values:
-                    vox_copy[i, j, k] = 0 if vox_copy[i, j, k] == 0 else bg_value
+                    vox_copy[i, j, k] = 0 if vox_copy[i, j, k] == 0 else label2value[label2new_label['BACKGROUND']]
                 else:
                     vox_copy[i, j, k] = label2value[  # The new value for the new label
                         label2new_label[  # The new label for the original label
@@ -87,6 +87,17 @@ def change_all_masks(label2new_label_name: str, label2value_name: str, brains_pa
         brain_ids = []
     count = 0
     lookup_table = load_lookup_table('/home/cheng/PycharmProjects/DataDownloaderAndAugmenter/lookupTable.json')
+    label2new_label = load_lookup_table('/home/cheng/PycharmProjects/DataDownloaderAndAugmenter/label2new_label.json',
+                                        lookup_name=label2new_label_name)
+    label2value = load_lookup_table('/home/cheng/PycharmProjects/DataDownloaderAndAugmenter/label2value.json',
+                                    lookup_name=label2value_name)
+
+    for brain_id in brain_ids:
+        mask_path = os.path.join(brains_path, brain_id, consts.MASK_NAME)
+        nifti_image = update_single(lookup_table, label2new_label, label2value, mask_path)
+        nib.nifti1.save(nifti_image, os.path.join(new_masks_path, brain_id, f'mask.nii.gz'))
+
+
 #     TODO: FINISH THE LOOP THAT ALSO SAVES THE NIFTI IMAGES
 
 
