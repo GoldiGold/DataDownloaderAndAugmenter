@@ -96,7 +96,8 @@ def change_all_masks(label2new_label_name: str, label2value_name: str, brains_pa
         mask_path = os.path.join(brains_path, brain_id, consts.MASK_NAME)
         nifti_image = update_single(lookup_table, label2new_label, label2value, mask_path)
         nib.nifti1.save(nifti_image, os.path.join(new_masks_path, brain_id, f'mask.nii.gz'))
-
+        count += 1
+    return count
 
 #     TODO: FINISH THE LOOP THAT ALSO SAVES THE NIFTI IMAGES
 
@@ -122,9 +123,10 @@ if __name__ == '__main__':
     lookup_table_main = load_lookup_table('/home/cheng/PycharmProjects/DataDownloaderAndAugmenter/lookupTable.json')
     unified_table = load_lookup_table('/home/cheng/PycharmProjects/DataDownloaderAndAugmenter/segmapLookupTables.json',
                                       lookup_name='unified-lookup-table')
-    conversion = find_values_mapping(lookup_table_main, lookup_table_main)
-    nifti_image = update_single(100307, lookup_table_main, conversion, bg_value=2)
-    nib.nifti1.save(nifti_image, os.path.join(consts.UNIFIED_DIR, f'orig-value2mask-{100307}.nii.gz'))
+    # conversion = find_values_mapping(lookup_table_main, lookup_table_main)
+    # nifti_image = update_single(100307, lookup_table_main, conversion, bg_value=2)
+    # nib.nifti1.save(nifti_image, os.path.join(consts.UNIFIED_DIR, f'orig-value2mask-{100307}.nii.gz'))
     # _, names = get_dataset_names()
+    nifti_image = update_single(lookup_table_main, label2new_label, label2value, mask_path)
     # # print(type(names[0]))
     # update_main(names)

@@ -21,7 +21,7 @@
     "CTX-RH-BROCA": 21,
     "CTX-RH-WERNICKE": 22
   },
-  "Minimal split": {
+  "minimal split": {
     "BACKGROUND": 10,
     "BROCA": 11,
     "WERNICKE": 12
