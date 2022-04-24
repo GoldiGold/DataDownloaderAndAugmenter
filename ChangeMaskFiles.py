@@ -41,12 +41,15 @@ def update_single(lookup_table: dict, label2new_label: dict, label2value: dict, 
     for i in range(vox_copy.shape[0]):
         for j in range(vox_copy.shape[1]):
             for k in range(vox_copy.shape[2]):
-                if vox_copy[i, j, k] not in lookup_table_values:
-                    vox_copy[i, j, k] = 0 if vox_copy[i, j, k] == 0 else label2value[label2new_label['BACKGROUND']]
+                # if i == 26 and j == 125 and k == 117:
+                #     print(f'reached the bug')
+                if voxels[i, j, k] not in lookup_table_values:
+                    vox_copy[i, j, k] = 0 if voxels[i, j, k] == 0 else label2value[label2new_label['BACKGROUND']]
                 else:
                     vox_copy[i, j, k] = label2value[  # The new value for the new label
                         label2new_label[  # The new label for the original label
-                            value2label_orig[i, j, k]]]  # The label of the original value
+                            value2label_orig[voxels[i, j, k]]]]  # The label of the original value
+    print(f'for debug the max value is: {vox_copy.max()}')
     new_mask = nib.nifti1.Nifti1Image(vox_copy, mask.affine, header=hdr.copy())
     return new_mask
 
@@ -93,10 +96,17 @@ def change_all_masks(label2new_label_name: str, label2value_name: str, brains_pa
                                     lookup_name=label2value_name)
 
     for brain_id in brain_ids:
-        mask_path = os.path.join(brains_path, brain_id, consts.MASK_NAME)
-        nifti_image = update_single(lookup_table, label2new_label, label2value, mask_path)
-        nib.nifti1.save(nifti_image, os.path.join(new_masks_path, brain_id, f'mask.nii.gz'))
-        count += 1
+        brain_path = os.path.join(new_masks_path, brain_id)
+        if not os.path.isdir(brain_path):
+            os.mkdir(brain_path)
+        brain_mask_path = os.path.join(brain_path, 'mask.nii.gz')
+        if not os.path.isfile(brain_mask_path):
+            mask_path = os.path.join(brains_path, brain_id, consts.MASK_NAME)
+            nifti_image = update_single(lookup_table, label2new_label, label2value, mask_path)
+            nib.nifti1.save(nifti_image, os.path.join(new_masks_path, brain_id, f'mask.nii.gz'))
+            count += 1
+            if count % 25 == 0:
+                print(f'passed 25 currently at: {count}')
     return count
 
 #     TODO: FINISH THE LOOP THAT ALSO SAVES THE NIFTI IMAGES
@@ -127,6 +137,6 @@ if __name__ == '__main__':
     # nifti_image = update_single(100307, lookup_table_main, conversion, bg_value=2)
     # nib.nifti1.save(nifti_image, os.path.join(consts.UNIFIED_DIR, f'orig-value2mask-{100307}.nii.gz'))
     # _, names = get_dataset_names()
-    nifti_image = update_single(lookup_table_main, label2new_label, label2value, mask_path)
+    # nifti_image = update_single(lookup_table_main, label2new_label, label2value, mask_path)
     # # print(type(names[0]))
     # update_main(names)
