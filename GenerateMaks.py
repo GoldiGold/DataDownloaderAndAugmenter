@@ -55,7 +55,7 @@ def generate_masks(brains_path: str, new_masks_path: str, mode: str):
         os.mkdir(subdir)
     masks_created = ChangeMaskFiles.change_all_masks(label2new_label_name=label2new_label, label2value_name=label2value,
                                                      brains_path=brains_path, new_masks_path=subdir,
-                                                     brain_ids=brain_ids[:len(brain_ids)//2])
+                                                     brain_ids=brain_ids[len(brain_ids)//2:])
     return masks_created
 
 
