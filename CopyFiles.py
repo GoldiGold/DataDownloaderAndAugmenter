@@ -6,6 +6,31 @@ t1w_src_path_suffix = f'MNINonLinear/{consts.T1W_NAME}'
 t1w_dst_path_suffix = f'{consts.T1W_NAME}'
 mask_src_path_suffix = f'MNINonLinear/{consts.MASK_NAME}'
 mask_dst_path_suffix = f'{consts.MASK_NAME}'
+brain_masks_src_path = f'MNINonLinear/{consts.OLD_BRAIN_NAME}'
+brain_masks_dst_path = f'{consts.BRAIN_NAME}'
+
+def copy_brain_masks(src_dataset: str, dst_dataset: str):
+    indices = [str(i) for i in os.listdir(src_dataset) if i.isdigit()]
+    copied_counter = 0
+    failed_counter = 0
+    for idx in indices:
+        src_file = os.path.join(src_dataset, idx, brain_masks_src_path)
+        path_dst = os.path.join(dst_dataset, 'Brain-Masks', idx)
+        if os.path.exists(src_file) and os.path.isfile(src_file):
+            if not os.path.exists(path_dst):
+                os.mkdir(path_dst)
+            if os.path.isdir(path_dst):
+                dst_file = os.path.join(path_dst, brain_masks_dst_path)
+                if not os.path.exists(dst_file):
+                    shutil.copy(src_file, dst_file)
+                    copied_counter += 1
+        else:
+            print(f'ERROR couldnt copy t1w of brain number {idx}')
+            failed_counter += 1
+        # break  # TO check for the first brain
+    print(
+        f't1w: {copied_counter}, failed t1w: {failed_counter}')
+    print(f'amount of brains to copy: {len(indices)}')
 
 
 def copy_masks(src_dataset: str, dst_dataset: str):
@@ -50,4 +75,4 @@ def copy_masks(src_dataset: str, dst_dataset: str):
 if __name__ == '__main__':
     src_dataset = consts.DATASET_DIR
     dst_dataset = consts.SSD_DATASET
-    copy_masks(src_dataset=src_dataset, dst_dataset=dst_dataset)
+    copy_brain_masks(src_dataset=src_dataset, dst_dataset=dst_dataset)
