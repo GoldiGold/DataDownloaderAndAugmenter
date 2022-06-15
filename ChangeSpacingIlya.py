@@ -26,7 +26,7 @@ num_procs = 1  # Multiprocessing mode
 case_list = r'hcp105_list.txt'
 generated_masks_type = 'all regions and sides split'
 
-mask_sizes = {'HCP': (260, 311, 260), 'HARDI': (145, 174, 145), 'CLINICAL': (73, 87, 73)}
+mask_sizes = {'HCP': (260, 311, 260), 'HARDI': (145, 174, 145), 'HARDI_NOA': (128, 144, 128), 'CLINICAL': (73, 87, 73)}
 
 
 def change_spacing_4D(img_in, new_spacing=1.25):
@@ -49,7 +49,7 @@ def change_spacing_4D(img_in, new_spacing=1.25):
     new_affine[2, 2] = new_spacing if img_in.affine[2, 2] > 0 else -new_spacing
 
     if new_spacing == 1.25:
-        new_shape = mask_sizes['HARDI']
+        new_shape = mask_sizes['HARDI_NOA']
     elif new_spacing == 2.5:
         new_shape = mask_sizes['CLINICAL']
     else:
@@ -78,21 +78,21 @@ def change_spacing_4D(img_in, new_spacing=1.25):
     return img_new
 
 
-def update_goldi_files(case_idx):
+def update_goldi_files(case_idx, new_spacing=1.25):
     # case_dir = os.path.join(data_dir, case)
     t1_file_in = os.path.join(data_dir, consts.SUB_DIR_DICT['t1w'], case_idx, consts.T1W_NAME)
     brain_mask_file = os.path.join(data_dir, consts.SUB_DIR_DICT['brain'], case_idx, consts.BRAIN_NAME)
     gen_mask_file = os.path.join(data_dir, consts.SUB_DIR_DICT['gen'], generated_masks_type, case_idx, consts.MASK_NAME)
     reg_mask_file = os.path.join(data_dir, consts.SUB_DIR_DICT['general'], case_idx, consts.OLD_MASK_NAME)
 
-    t1_out_dir = os.path.join(data_dir, 'T1w-1.25', case_idx)
-    gen_mask_out_dir = os.path.join(data_dir, 'Generated-Masks-1.25', case_idx)
-    reg_mask_out_dir = os.path.join(data_dir, 'General-Masks-1.25', case_idx)
-    brain_mask_out_dir = os.path.join(data_dir, 'Brain-Masks-1.25', case_idx)
-    t1_file_out = os.path.join(t1_out_dir, 'T1w-1.25.nii.gz')
-    gen_mask_file_out = os.path.join(gen_mask_out_dir, 'mask-1.25.nii.gz')
-    reg_mask_file_out = os.path.join(reg_mask_out_dir, 'aparc+aseg-1.25.nii.gz')
-    brain_mask_file_out = os.path.join(brain_mask_out_dir, 'brain_mask-1.25.nii.gz')
+    t1_out_dir = os.path.join(data_dir, f'T1w-AGY-{new_spacing}', case_idx)
+    gen_mask_out_dir = os.path.join(data_dir, f'Generated-Masks-AGY-{new_spacing}', case_idx)
+    reg_mask_out_dir = os.path.join(data_dir, f'General-Masks-AGY-{new_spacing}', case_idx)
+    brain_mask_out_dir = os.path.join(data_dir, f'Brain-Masks-AGY-{new_spacing}', case_idx)
+    t1_file_out = os.path.join(t1_out_dir, 'T1w.nii.gz')
+    gen_mask_file_out = os.path.join(gen_mask_out_dir, 'mask.nii.gz')
+    reg_mask_file_out = os.path.join(reg_mask_out_dir, 'aparc+aseg.nii.gz')
+    brain_mask_file_out = os.path.join(brain_mask_out_dir, 'brain_mask.nii.gz')
 
     for dirs in [t1_out_dir, gen_mask_out_dir, reg_mask_out_dir, brain_mask_out_dir]:
         os.makedirs(dirs, exist_ok=True)
@@ -111,11 +111,11 @@ def update_goldi_files(case_idx):
     # (0.7 mm of precision instead of 1.25)
     mask_lq = mask_hq.get_fdata()
     # if set_type == '32g_25mm':
-    mask_lq = change_spacing_4D(mask_hq, new_spacing=1.25)
+    mask_lq = change_spacing_4D(mask_hq, new_spacing=new_spacing)
     # mask_lq_file = os.path.join(out_dir, 'brain_mask.nii.gz')
     # nib.save(mask_lq, mask_lq_file)
-    mask_lq = mask_lq.get_fdata()
-    nib.save(nib.Nifti1Image(mask_lq.astype(np.float32), mask_hq.affine), brain_mask_file_out)
+    mask_lq_data = mask_lq.get_fdata()
+    nib.save(nib.Nifti1Image(mask_lq_data.astype(np.float32), mask_lq.affine), brain_mask_file_out)
     # maskdata = data * mask_lq[..., np.newaxis]
     # print(maskdata.shape, maskdata.dtype)
 
@@ -125,12 +125,13 @@ def update_goldi_files(case_idx):
     for in_file, out_file in zip([t1_file_in, gen_mask_file, reg_mask_file],
                                  [t1_file_out, gen_mask_file_out, reg_mask_file_out]):
         scan = nib.load(in_file)
-        altered_scan = change_spacing_4D(scan, new_spacing=1.25).get_fdata()
-        altered_scan[altered_scan < 0] = 0
+        altered_scan = change_spacing_4D(scan, new_spacing=new_spacing)
+        altered_scan_data = altered_scan.get_fdata()
+        altered_scan_data[altered_scan_data < 0] = 0
         # print('Before processing: {}, min: {}, max: {}, shape: {}'.format(altered_scan.dtype, altered_scan.min(), altered_scan.max(), altered_scan.shape))
-        altered_scan = altered_scan * mask_lq
+        altered_scan_data = altered_scan_data * mask_lq_data
         # print('After processing: {}, min: {}, max: {}, shape: {}'.format(altered_scan.dtype, altered_scan.min(), altered_scan.max(), altered_scan.shape))
-        altered_scan_img = nib.Nifti1Image(altered_scan.astype(np.float32), scan.affine)
+        altered_scan_img = nib.Nifti1Image(altered_scan_data.astype(np.float32), altered_scan.affine)
         nib.save(altered_scan_img, out_file)
 
 
@@ -249,18 +250,18 @@ def case_cb(case_idx, case):
 
 if __name__ == "__main__":
 
-    brain_ids = [str(i) for i in os.listdir(os.path.join(data_dir, consts.SUB_DIR_DICT['t1w'])) if i.isdigit()]  # if this is the correct syntax
+    brain_ids = sorted([str(i) for i in os.listdir(os.path.join(data_dir, consts.SUB_DIR_DICT['t1w'])) if i.isdigit()])  # if this is the correct syntax
     # cases = [line.rstrip() for line in fp.readlines()]
 
     if num_procs <= 1:
         # Serial execution
         for case_idx in brain_ids:
-            update_goldi_files(case_idx)
+            update_goldi_files(case_idx, 1.25)
     else:
         # Parallel execution
         jobs = []
         for case_idx in brain_ids[:40]:
-            p = multiprocessing.Process(target=update_goldi_files, args=tuple(case_idx))
+            p = multiprocessing.Process(target=update_goldi_files, args=tuple(case_idx, 2.5))
             jobs.append(p)
 
         num_batches = int(np.ceil(len(jobs) / num_procs))

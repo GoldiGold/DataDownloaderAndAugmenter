@@ -4,7 +4,7 @@ DATASET_DIR = '/run/media/cheng/Maxwell_HD/Goldi_Folder/Dataset'
 WB_DIR = '/home/cheng/Desktop/workbench/exe_linux64/'
 TABLE_DIR = '/run/media/cheng/Maxwell_HD/Goldi_Folder/Tables/'
 SSD_DATASET = '/home/cheng/Desktop/Dataset/'
-SUB_DIR_DICT = {'t1w': 'T1w', 'general': 'General-Masks', 'gen': 'Generated-Masks', 'brain': 'Brain-Masks'}
+SUB_DIR_DICT = {'t1w': 'T1w-0.7', 'general': 'General-Masks-0.7', 'gen': 'Generated-Masks-0.7', 'brain': 'Brain-Masks-0.7'}
 SUB_DIR_DICT_125 = {'t1w': 'T1w-1.25', 'general': 'General-Masks-1.25', 'gen': 'Generated-Masks-1.25',
                     'brain': 'Brain-Masks-1.25'}
 
