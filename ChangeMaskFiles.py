@@ -4,7 +4,7 @@ import consts
 import numpy as np
 import json
 from createTables import get_dataset_names
-from nilearn import plotting
+# from nilearn import plotting
 
 '''
 In editing the brains mask we want to keep only the values of the LABELS in the consts files (and maybe not 
@@ -49,6 +49,62 @@ def update_single(lookup_table: dict, label2new_label: dict, label2value: dict, 
                     vox_copy[i, j, k] = label2value[  # The new value for the new label
                         label2new_label[  # The new label for the original label
                             value2label_orig[voxels[i, j, k]]]]  # The label of the original value
+    print(f'for debug the max value is: {vox_copy.max()}')
+    new_mask = nib.nifti1.Nifti1Image(vox_copy, mask.affine, header=hdr.copy())
+    return new_mask
+
+def update_single_multi_channel(lookup_table: dict, label2new_label: dict, label2value: dict, mask_path: str, bg_value: int = 0):
+    '''
+    This function takes the aparc+aseg mask and extract only the labels we want to our research, it also gives them new
+    values according to the conversion table (that is created from 2 lookup tables (old - values in original and new -
+    values we set to be in the new). and returns a new mask with only the values we want.
+
+    THE NEW VALUES HERE HAVE TO BE IN ORDER (0,1,2) (3,4,5) SO WE CAN MAP THEM TO THE CHANNELS
+
+    :param mask_path:
+    :param label2value:
+    :param label2new_label:
+    :param brain_id: the brain (patient) id number to find in the dataset
+    :param lookup_table: the table that maps the original labels and the original values in the aprac+aseg file.
+    :param conversion_table: a table between the values of the old -> new tables. state the new voxel values
+    :param bg_value: a value for voxels inside the brain we are not interested in.
+    :param data_dir: that path to the Dataset.
+    :return: a new Nifti1Image OR WE WILL SAVE IT HERE ALREADY AND WE WON'T RETURN ANYTHING.
+    '''
+    #  mask_path = os.path.join(data_dir, str(brain_id), 'MNINonLinear', consts.MASK_NAME)
+    mask = nib.load(mask_path)
+    # print(mask.shape, mask.get_data_dtype(), mask.affine.shape,
+    #       f'mask 3D size is: 1st X 2nd X 3rd = {mask.shape[0] * mask.shape[1] * mask.shape[2]}')
+    hdr = mask.header
+    # print(mask.file_map, hdr.get_xyzt_units(), type(hdr), '\n', hdr.get_zooms(), '\nheader:', hdr)
+    value2label_orig = {value: key for key, value in lookup_table.items()}
+    voxels = mask.get_fdata()
+    # print(type(voxels), voxels.shape, np.max(voxels), np.min(voxels))
+    # print('length of label2value:', len(label2value))
+    # return 0
+    vox_copy = np.zeros([*voxels.shape, len(label2value)])
+    channel_diff = min(label2value.values())
+    # print(label2value.values(), channel_diff)
+    # return 0
+
+    lookup_table_values = lookup_table.values()
+    for i in range(voxels.shape[0]):
+        for j in range(voxels.shape[1]):
+            for k in range(voxels.shape[2]):
+                # if i == 26 and j == 125 and k == 117:
+                #     print(f'reached the bug')
+                if voxels[i, j, k] not in lookup_table_values:
+                    if voxels[i, j, k] == 0:
+                        vox_copy[i, j, k, :] = 0
+                    else:
+                        vox_copy[i, j, k, label2value[label2new_label['BACKGROUND']]-channel_diff] = 1
+                    # vox_copy[i, j, k, :] = 0 if voxels[i, j, k] == 0 else label2value[label2new_label['BACKGROUND']]
+                else:
+                    channel = label2value[  # The new value for the new label
+                        label2new_label[  # The new label for the original label
+                            value2label_orig[voxels[i, j, k]]]] - channel_diff # The label of the original value
+                    vox_copy[i, j, k, channel] = 1
+                    # print(channel)
     print(f'for debug the max value is: {vox_copy.max()}')
     new_mask = nib.nifti1.Nifti1Image(vox_copy, mask.affine, header=hdr.copy())
     return new_mask
@@ -102,7 +158,7 @@ def change_all_masks(label2new_label_name: str, label2value_name: str, brains_pa
         brain_mask_path = os.path.join(brain_path, 'mask.nii.gz')
         if not os.path.isfile(brain_mask_path):
             mask_path = os.path.join(brains_path, brain_id, consts.MASK_NAME)
-            nifti_image = update_single(lookup_table, label2new_label, label2value, mask_path)
+            nifti_image = update_single_multi_channel(lookup_table, label2new_label, label2value, mask_path)
             nib.nifti1.save(nifti_image, os.path.join(new_masks_path, brain_id, f'mask.nii.gz'))
             count += 1
             if count % 25 == 0:
@@ -136,7 +192,7 @@ if __name__ == '__main__':
     # conversion = find_values_mapping(lookup_table_main, lookup_table_main)
     # nifti_image = update_single(100307, lookup_table_main, conversion, bg_value=2)
     # nib.nifti1.save(nifti_image, os.path.join(consts.UNIFIED_DIR, f'orig-value2mask-{100307}.nii.gz'))
-    # _, names = get_dataset_names()
+    _, names = get_dataset_names(data_dir='/home/cheng/Desktop/Dataset/Generated-Masks-AGY-1.25/all-regions-and-sides-split')
     # nifti_image = update_single(lookup_table_main, label2new_label, label2value, mask_path)
     # # print(type(names[0]))
-    # update_main(names)
+    update_main(names)

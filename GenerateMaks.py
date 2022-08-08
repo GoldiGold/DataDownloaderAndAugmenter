@@ -55,12 +55,12 @@ def generate_masks(brains_path: str, new_masks_path: str, mode: str):
         os.mkdir(subdir)
     masks_created = ChangeMaskFiles.change_all_masks(label2new_label_name=label2new_label, label2value_name=label2value,
                                                      brains_path=brains_path, new_masks_path=subdir,
-                                                     brain_ids=brain_ids[len(brain_ids)//2:])
+                                                     brain_ids=brain_ids[1:])
     return masks_created
 
 
 if __name__ == '__main__':
-    m_c = generate_masks(brains_path=os.path.join(consts.SSD_DATASET, consts.SUB_DIR_DICT['general']),
-                         new_masks_path=os.path.join(consts.SSD_DATASET, consts.SUB_DIR_DICT['gen']),
-                         mode='first')
+    m_c = generate_masks(brains_path='/home/cheng/Desktop/Dataset/Generated-Masks-AGY-1.25/all-regions-and-sides-split/',
+                         new_masks_path='/home/cheng/Desktop/Dataset/Generated-Masks-Multi-Channel-AGY-1.25/',
+                         mode='fourth')
     print(f'mask created {m_c}')

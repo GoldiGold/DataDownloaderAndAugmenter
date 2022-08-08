@@ -22,9 +22,9 @@
     "CTX-RH-WERNICKE": 2030
   },
   "minimal split": {
-    "BACKGROUND": 2,
-    "BROCA": 1018,
-    "WERNICKE": 1030
+    "BACKGROUND": 1,
+    "BROCA": 2,
+    "WERNICKE": 3
   }
 
 }
