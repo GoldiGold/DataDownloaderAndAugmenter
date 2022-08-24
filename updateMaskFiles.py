@@ -84,7 +84,7 @@ def update_main(brain_ids=None):
     count = 0
     lookup_table = load_lookup_table('/home/cheng/PycharmProjects/DataDownloaderAndAugmenter/lookupTable.json')
     unified_table = load_lookup_table('/home/cheng/PycharmProjects/DataDownloaderAndAugmenter/segmapLookupTables.json',
-                                      lookup_name='unified-lookup-table')
+                                  lookup_name='unified-lookup-table')
     conversion = find_values_mapping(lookup_table, unified_table)
     # print(conversion)
     for brain_id in brain_ids:

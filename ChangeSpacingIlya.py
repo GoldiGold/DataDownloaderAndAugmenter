@@ -15,6 +15,7 @@ from dipy.reconst.dti import fractional_anisotropy, color_fa
 
 # misc
 import consts
+import T1wConsts
 
 # from utils import tic, toc
 
@@ -26,7 +27,7 @@ num_procs = 1  # Multiprocessing mode
 case_list = r'hcp105_list.txt'
 generated_masks_type = 'all regions and sides split'
 
-mask_sizes = {'HCP': (260, 311, 260), 'HARDI': (145, 174, 145), 'HARDI_NOA': (128, 144, 128), 'CLINICAL': (73, 87, 73)}
+mask_sizes = {'HCP': (260, 311, 260), 'HARDI': (145, 174, 145), 'HARDI_NOA': (144, 160, 144), 'CLINICAL': (73, 87, 73)}
 
 
 def change_spacing_4D(img_in, new_spacing=1.25):
@@ -49,7 +50,7 @@ def change_spacing_4D(img_in, new_spacing=1.25):
     new_affine[2, 2] = new_spacing if img_in.affine[2, 2] > 0 else -new_spacing
 
     if new_spacing == 1.25:
-        new_shape = mask_sizes['HARDI']
+        new_shape = mask_sizes['HARDI_NOA']
     elif new_spacing == 1.5:
         new_shape = mask_sizes['HARDI_NOA']
     elif new_spacing == 2.5:
@@ -80,19 +81,37 @@ def change_spacing_4D(img_in, new_spacing=1.25):
     return img_new
 
 
-def temp_try_t1w_with_brain():
+def temp_try_t1w_with_brain(brain_id, new_spacing=1.25):
     in_files_dict = {
-        't1': '/run/media/cheng/Maxwell_HD/Goldi_Folder/Dataset/992774/MNINonLinear/T1w_restore_brain.nii.gz',
-        'brain_mask': '/run/media/cheng/Maxwell_HD/Goldi_Folder/Dataset/992774/MNINonLinear/brainmask_fs.nii.gz',
-        'generated_mask': None, 'general_mask': None, 'rgb': None}
+        't1': os.path.join(T1wConsts.DATASET_DIR, str(brain_id), 'T1w', T1wConsts.OLD_T1W_NAME),
+        'brain_mask': os.path.join(T1wConsts.DATASET_DIR, str(brain_id), 'T1w', T1wConsts.OLD_BRAIN_MASK_NAME),
+        'generated_mask': None,
+        'general_mask': os.path.join(T1wConsts.DATASET_DIR, str(brain_id), 'T1w', T1wConsts.OLD_MASK_NAME),
+        'rgb': os.path.join(T1wConsts.SSD_DATASET, T1wConsts.DATASET_DICT['rgb'], str(brain_id), T1wConsts.RGB_NAME)}
+    out_dir_dict = {
+        't1': os.path.join(T1wConsts.SSD_DATASET, T1wConsts.DATASET_DICT['t1w'], str(brain_id)),
+        'brain_mask': os.path.join(T1wConsts.SSD_DATASET, T1wConsts.DATASET_DICT['brain'], str(brain_id)),
+        'generated_mask': None,
+        'general_mask': os.path.join(T1wConsts.SSD_DATASET, T1wConsts.DATASET_DICT['general'], str(brain_id)),
+        'rgb': os.path.join(T1wConsts.SSD_DATASET, T1wConsts.RGB_NEW_SIZE, str(brain_id))}
     out_files_dict = {
-        't1': 'T1w_restore_brain_1.25.nii.gz',
-        'brain_mask': 'brainmask_fs_1.25.nii.gz',
-        'generated_mask': None, 'general_mask': None, 'rgb': None}
-    update_single_brain(in_files_dict, out_files_dict, 992774, 1.25)
+        't1': None if out_dir_dict['t1'] is None else os.path.join(out_dir_dict['t1'], T1wConsts.T1W_NAME),
+        'brain_mask': None if out_dir_dict['brain_mask'] is None else os.path.join(out_dir_dict['brain_mask'],
+                                                                                   T1wConsts.BRAIN_MASK_NAME),
+        'generated_mask': None if out_dir_dict['generated_mask'] is None else os.path.join(
+            out_dir_dict['generated_mask'],
+            T1wConsts.MASK_NAME),
+        'general_mask': None if out_dir_dict['general_mask'] is None else os.path.join(out_dir_dict['general_mask'],
+                                                                                       T1wConsts.MASK_NAME),
+        'rgb': None if out_dir_dict['rgb'] is None else os.path.join(out_dir_dict['rgb'], T1wConsts.RGB_NAME)}
+
+    for dirs in out_dir_dict.values():
+        if dirs is not None:
+            os.makedirs(dirs, exist_ok=True)
+    update_single_brain(in_files_dict, out_files_dict, brain_id, new_spacing, recreate=not True)
 
 
-def update_single_brain(in_files_dict: dict, out_files_dict: dict, case_idx, new_spacing=1.25):
+def update_single_brain(in_files_dict: dict, out_files_dict: dict, case_idx, new_spacing=1.25, recreate: bool = False):
     '''
     gets the in files names and the out files names in dictionaries and creates the new files with the new spacing
     that has the keys:
@@ -102,6 +121,7 @@ def update_single_brain(in_files_dict: dict, out_files_dict: dict, case_idx, new
     :param out_files_dict: holds the full path to the files we create.
         keys: 't1', 'brain_mask', 'generated_mask', 'general_mask', 'rgb'
     :param new_spacing: the new resolution of the scans that we give the function 'change_spacing_4D'
+    :param recreate: recreate when positive
     :return: 0 if didn't do anything (no brain mask), and nothing - prints a success message
     '''
     if not os.path.isfile(in_files_dict['brain_mask']):
@@ -115,22 +135,30 @@ def update_single_brain(in_files_dict: dict, out_files_dict: dict, case_idx, new
     # print(data.shape, data.dtype)
 
     print('Load mask ... ', end='')
-    mask_hq = nib.load(
-        in_files_dict['brain_mask'])  # it was brain_mask before which is the binary map of where the brain
-    # is in the skull check and see if it is the same as our brain_mask files or maybe they are bigger
-    # (0.7 mm of precision instead of 1.25)
-    mask_lq = mask_hq.get_fdata()
 
-    mask_lq = change_spacing_4D(mask_hq, new_spacing=new_spacing)
+    if os.path.isfile(out_files_dict['brain_mask']) and not recreate:
+        mask_lq = nib.load(out_files_dict['brain_mask'])
+    else:
+        print('create mask')
+        mask_hq = nib.load(
+            in_files_dict['brain_mask'])  # it was brain_mask before which is the binary map of where the brain
+        # is in the skull check and see if it is the same as our brain_mask files or maybe they are bigger
+        # (0.7 mm of precision instead of 1.25)
+        mask_lq = mask_hq.get_fdata()
+
+        mask_lq = change_spacing_4D(mask_hq, new_spacing=new_spacing)
+        nib.save(nib.Nifti1Image((mask_lq.get_fdata()).astype(np.float32), mask_lq.affine),
+                 out_files_dict['brain_mask'])
 
     mask_lq_data = mask_lq.get_fdata()
-    nib.save(nib.Nifti1Image(mask_lq_data.astype(np.float32), mask_lq.affine), out_files_dict['brain_mask'])
 
     for file_key in in_files_dict.keys():
         # for in_file, out_file in zip([rgb_file_in],
         #                              [rgb_file_out]):
-        if in_files_dict[file_key] is None or not os.path.isfile(in_files_dict[file_key]):
+        if in_files_dict[file_key] is None or not os.path.isfile(in_files_dict[file_key]) or (
+                os.path.isfile(out_files_dict[file_key]) and not recreate):  # won't recreate the scan
             continue
+        print('create', file_key)
         scan = nib.load(in_files_dict[file_key])
         altered_scan = change_spacing_4D(scan, new_spacing=new_spacing)
         altered_scan_data = altered_scan.get_fdata()
@@ -330,8 +358,28 @@ def case_cb(case_idx, case):
 
 
 if __name__ == "__main__":
-    temp_try_t1w_with_brain()
+    # temp_try_t1w_with_brain(992774, 1.25)
+    brain_ids = sorted([str(i) for i in os.listdir(os.path.join(T1wConsts.DATASET_DIR)) if
+                        i.isdigit()])  # if this is the correct syntax
+    if num_procs <= 1:
+        # Serial execution
+        for case_idx in brain_ids:  # brain_ids[:1]:
+            temp_try_t1w_with_brain(case_idx, 1.25)
+    else:
+        # Parallel execution
+        jobs = []
+        for case_idx in brain_ids[:40]:
+            p = multiprocessing.Process(target=temp_try_t1w_with_brain, args=tuple(case_idx, 1.25))
+            jobs.append(p)
 
+        num_batches = int(np.ceil(len(jobs) / num_procs))
+        for batch in range(num_batches):
+            batch_jobs = jobs[num_procs * batch: min(num_procs * (batch + 1), len(jobs))]
+            for job in batch_jobs:
+                job.start()
+
+            for job in batch_jobs:
+                job.join()
     '''
     brain_ids = sorted([str(i) for i in os.listdir(os.path.join(data_dir, consts.SUB_DIR_DICT['t1w'])) if
                         i.isdigit()])  # if this is the correct syntax

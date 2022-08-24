@@ -5,7 +5,7 @@ import consts
 
 
 def generate_masks(brains_path: str, new_masks_path: str, mode: str):
-    brain_ids = [str(i) for i in os.listdir(brains_path) if i.isdigit()]  # if this is the correct syntax
+    brain_ids = sorted([str(i) for i in os.listdir(brains_path) if i.isdigit()])  # if this is the correct syntax
     if mode == 'first':
         # read json file label 2 new label
         label2new_label = 'all regions and sides split'
@@ -60,7 +60,7 @@ def generate_masks(brains_path: str, new_masks_path: str, mode: str):
 
 
 if __name__ == '__main__':
-    m_c = generate_masks(brains_path='/home/cheng/Desktop/Dataset/Generated-Masks-AGY-1.25/all-regions-and-sides-split/',
-                         new_masks_path='/home/cheng/Desktop/Dataset/Generated-Masks-Multi-Channel-AGY-1.25/',
+    m_c = generate_masks(brains_path='/home/cheng/Desktop/Dataset/Dataset-1.25/General-Masks/',
+                         new_masks_path='/home/cheng/Desktop/Dataset/Dataset-1.25/Generated-Masks/',
                          mode='fourth')
     print(f'mask created {m_c}')

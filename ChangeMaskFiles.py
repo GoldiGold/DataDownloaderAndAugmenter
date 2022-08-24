@@ -1,6 +1,7 @@
 import nibabel as nib
 import os
 import consts
+import T1wConsts
 import numpy as np
 import json
 from createTables import get_dataset_names
@@ -155,11 +156,11 @@ def change_all_masks(label2new_label_name: str, label2value_name: str, brains_pa
         brain_path = os.path.join(new_masks_path, brain_id)
         if not os.path.isdir(brain_path):
             os.mkdir(brain_path)
-        brain_mask_path = os.path.join(brain_path, 'mask.nii.gz')
+        brain_mask_path = os.path.join(brain_path, 'gt.nii.gz')
         if not os.path.isfile(brain_mask_path):
-            mask_path = os.path.join(brains_path, brain_id, consts.MASK_NAME)
+            mask_path = os.path.join(brains_path, brain_id, T1wConsts.MASK_NAME)
             nifti_image = update_single_multi_channel(lookup_table, label2new_label, label2value, mask_path)
-            nib.nifti1.save(nifti_image, os.path.join(new_masks_path, brain_id, f'mask.nii.gz'))
+            nib.nifti1.save(nifti_image, os.path.join(new_masks_path, brain_id, f'gt.nii.gz'))
             count += 1
             if count % 25 == 0:
                 print(f'passed 25 currently at: {count}')
