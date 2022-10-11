@@ -3,7 +3,7 @@ import shutil
 import consts
 import T1wConsts
 import nibabel as nib
-import torch
+# import torch
 
 t1w_src_path_suffix = f'MNINonLinear/{consts.T1W_NAME}'
 t1w_dst_path_suffix = f'{consts.T1W_NAME}'
@@ -15,7 +15,7 @@ brain_masks_dst_path = f'{consts.BRAIN_NAME}'
 def save_as_tensors(brain_ids: list, brains_path: str, tensors_path: str, brain_file_name: str):
     for brain in brain_ids:
         brain_data = nib.load(os.path.join(brains_path, brain, brain_file_name)).get_fdata()
-        brain_tensor = torch.save(os.path.join(tensors_path, f'{brain}.pt'))
+        # brain_tensor = torch.save(os.path.join(tensors_path, f'{brain}.pt'))
 
 def copy_brain_masks(src_dataset: str, dst_dataset: str):
     indices = [str(i) for i in os.listdir(src_dataset) if i.isdigit()]

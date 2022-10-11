@@ -83,14 +83,14 @@ def change_spacing_4D(img_in, new_spacing=1.25):
 
 def temp_try_t1w_with_brain(brain_id, new_spacing=1.25):
     in_files_dict = {
-        't1': os.path.join(T1wConsts.DATASET_DIR, str(brain_id), 'T1w', T1wConsts.OLD_T1W_NAME),
-        'brain_mask': os.path.join(T1wConsts.DATASET_DIR, str(brain_id), 'T1w', T1wConsts.OLD_BRAIN_MASK_NAME),
+        't1': None, # os.path.join(T1wConsts.DATASET_DIR, str(brain_id), 'T1w', T1wConsts.OLD_T1W_NAME),
+        'brain_mask': os.path.join('/home/cheng/Desktop/Dataset/Dataset-1.25/Brain-Masks-NOA/', str(brain_id), T1wConsts.BRAIN_MASK_NAME), #    os.path.join(T1wConsts.DATASET_DIR, str(brain_id), 'T1w', T1wConsts.OLD_BRAIN_MASK_NAME),
         'generated_mask': None,
-        'general_mask': os.path.join(T1wConsts.DATASET_DIR, str(brain_id), 'T1w', T1wConsts.OLD_MASK_NAME),
+        'general_mask': None, #os.path.join(T1wConsts.DATASET_DIR, str(brain_id), 'T1w', T1wConsts.OLD_MASK_NAME),
         'rgb': os.path.join(T1wConsts.SSD_DATASET, T1wConsts.DATASET_DICT['rgb'], str(brain_id), T1wConsts.RGB_NAME)}
     out_dir_dict = {
-        't1': os.path.join(T1wConsts.SSD_DATASET, T1wConsts.DATASET_DICT['t1w'], str(brain_id)),
-        'brain_mask': os.path.join(T1wConsts.SSD_DATASET, T1wConsts.DATASET_DICT['brain'], str(brain_id)),
+        't1': None, #os.path.join(T1wConsts.SSD_DATASET, T1wConsts.DATASET_DICT['t1w'], str(brain_id)),
+        'brain_mask': f'/home/cheng/Desktop/Dataset/Dataset-1.25/Brain-Masks-NOA-NEW-SIZE/{str(brain_id)}/', #os.path.join(T1wConsts.SSD_DATASET, T1wConsts.DATASET_DICT['brain'], str(brain_id)),
         'generated_mask': None,
         'general_mask': os.path.join(T1wConsts.SSD_DATASET, T1wConsts.DATASET_DICT['general'], str(brain_id)),
         'rgb': os.path.join(T1wConsts.SSD_DATASET, T1wConsts.RGB_NEW_SIZE, str(brain_id))}
@@ -359,7 +359,9 @@ def case_cb(case_idx, case):
 
 if __name__ == "__main__":
     # temp_try_t1w_with_brain(992774, 1.25)
-    brain_ids = sorted([str(i) for i in os.listdir(os.path.join(T1wConsts.DATASET_DIR)) if
+    # brain_ids = sorted([str(i) for i in os.listdir(os.path.join(T1wConsts.DATASET_DIR)) if
+    #                     i.isdigit()])  # if this is the correct syntax
+    brain_ids = sorted([str(i) for i in os.listdir('/home/cheng/Desktop/Dataset/Dataset-1.25/RGB-NOA/') if
                         i.isdigit()])  # if this is the correct syntax
     if num_procs <= 1:
         # Serial execution
