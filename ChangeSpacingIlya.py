@@ -16,6 +16,8 @@ from dipy.reconst.dti import fractional_anisotropy, color_fa
 # misc
 import consts
 import T1wConsts
+from consts import rgb_brains
+import time
 
 # from utils import tic, toc
 
@@ -83,14 +85,17 @@ def change_spacing_4D(img_in, new_spacing=1.25):
 
 def temp_try_t1w_with_brain(brain_id, new_spacing=1.25):
     in_files_dict = {
-        't1': None, # os.path.join(T1wConsts.DATASET_DIR, str(brain_id), 'T1w', T1wConsts.OLD_T1W_NAME),
-        'brain_mask': os.path.join('/home/cheng/Desktop/Dataset/Dataset-1.25/Brain-Masks-NOA/', str(brain_id), T1wConsts.BRAIN_MASK_NAME), #    os.path.join(T1wConsts.DATASET_DIR, str(brain_id), 'T1w', T1wConsts.OLD_BRAIN_MASK_NAME),
+        't1': None,  # os.path.join(T1wConsts.DATASET_DIR, str(brain_id), 'T1w', T1wConsts.OLD_T1W_NAME),
+        'brain_mask': os.path.join('/home/cheng/Desktop/Dataset/Dataset-1.25/Brain-Masks-NOA/', str(brain_id),
+                                   T1wConsts.BRAIN_MASK_NAME),
+        # os.path.join(T1wConsts.DATASET_DIR, str(brain_id), 'T1w', T1wConsts.OLD_BRAIN_MASK_NAME),
         'generated_mask': None,
-        'general_mask': None, #os.path.join(T1wConsts.DATASET_DIR, str(brain_id), 'T1w', T1wConsts.OLD_MASK_NAME),
+        'general_mask': None,  # os.path.join(T1wConsts.DATASET_DIR, str(brain_id), 'T1w', T1wConsts.OLD_MASK_NAME),
         'rgb': os.path.join(T1wConsts.SSD_DATASET, T1wConsts.DATASET_DICT['rgb'], str(brain_id), T1wConsts.RGB_NAME)}
     out_dir_dict = {
-        't1': None, #os.path.join(T1wConsts.SSD_DATASET, T1wConsts.DATASET_DICT['t1w'], str(brain_id)),
-        'brain_mask': f'/home/cheng/Desktop/Dataset/Dataset-1.25/Brain-Masks-NOA-NEW-SIZE/{str(brain_id)}/', #os.path.join(T1wConsts.SSD_DATASET, T1wConsts.DATASET_DICT['brain'], str(brain_id)),
+        't1': None,  # os.path.join(T1wConsts.SSD_DATASET, T1wConsts.DATASET_DICT['t1w'], str(brain_id)),
+        'brain_mask': f'/home/cheng/Desktop/Dataset/Dataset-1.25/Brain-Masks-NOA-NEW-SIZE/{str(brain_id)}/',
+        # os.path.join(T1wConsts.SSD_DATASET, T1wConsts.DATASET_DICT['brain'], str(brain_id)),
         'generated_mask': None,
         'general_mask': os.path.join(T1wConsts.SSD_DATASET, T1wConsts.DATASET_DICT['general'], str(brain_id)),
         'rgb': os.path.join(T1wConsts.SSD_DATASET, T1wConsts.RGB_NEW_SIZE, str(brain_id))}
@@ -260,6 +265,90 @@ def update_goldi_files(case_idx, new_spacing=1.25):
     print('>>> processed case: {}'.format(case_idx))
 
 
+def create_all_rgb(path: str, out_path: str, masks_path: str):
+    for num in rgb_brains[:1]:
+        create_rgb(num, os.path.join(path, num, 'Diffusion'), out_path, masks_path)
+
+
+def create_rgb(case_idx, case_path, out_path, mask_path):
+    tic = time.time()
+
+    # case_dir = os.path.join(data_dir, case)
+    mask_file = os.path.join(case_path, 'nodif_brain_mask.nii.gz')
+    reduced_mask_file = os.path.join(mask_path, case_idx, consts.BRAIN_NAME)
+    dwi_file = os.path.join(case_path, 'data.nii.gz')
+    bval_file = os.path.join(case_path, 'bvals')
+    bvec_file = os.path.join(case_path, 'bvecs')
+
+    fa_file = os.path.join(out_path, 'FA.nii.gz')
+    rgb_file = os.path.join(out_path, 'RGB.nii.gz')
+    pdd_file = os.path.join(out_path, 'PDD.nii.gz')
+    print(f'Started Working on case: {case_idx}')
+
+    # Generate DTI
+    print('Load DWI data ... ', end='')
+    img = nib.load(dwi_file)
+    data = img.get_fdata()
+    print(data.shape, data.dtype)
+
+    print('Load mask ... ', end='')
+    mask_lq = nib.load(mask_file).get_fdata()
+    # mask_lq = mask_hq.get_fdata()
+    # if set_type == '32g_25mm':
+    #     mask_lq = change_spacing_4D(mask_hq, new_spacing=1.25)
+        # mask_lq_file = os.path.join(out_dir, 'brain_mask.nii.gz')
+        # nib.save(mask_lq, mask_lq_file)
+        # mask_lq = mask_lq.get_fdata()
+    maskdata = data * mask_lq[..., np.newaxis]
+    # maskdata = data
+    print(maskdata.shape, maskdata.dtype)
+
+    print('Load BVALs & BVECs data ... ')
+    bvals, bvecs = read_bvals_bvecs(bval_file, bvec_file)
+    gtab = gradient_table(bvals, bvecs)
+
+    print('Fitting DTI model ... ')
+    tenmodel = dti.TensorModel(gtab)
+    tenfit = tenmodel.fit(maskdata)
+
+    print('Compute FA ... ', end='')
+    FA = fractional_anisotropy(tenfit.evals)
+    print(FA.shape, FA.dtype)
+    FA[np.isnan(FA)] = 0
+    FA = np.clip(FA, 0, 1)
+
+    fa_img = nib.Nifti1Image(FA.astype(np.float32), img.affine)
+    if set_type == '32g_25mm':
+        fa_img = change_spacing_4D(fa_img, new_spacing=1.25)
+    print('Saving FA: ', fa_file)
+    nib.save(fa_img, fa_file)
+
+    PDD = tenfit.evecs[..., 0]
+    pdd_img = nib.Nifti1Image(PDD.astype(np.float32), img.affine)
+    if set_type == '32g_25mm':
+        pdd_img = change_spacing_4D(pdd_img, new_spacing=1.25)
+    print('Saving PDD: ', pdd_file)
+    nib.save(pdd_img, pdd_file)
+
+    print('Compute RGB ... ', end='')
+    RGB = color_fa(FA, tenfit.evecs)
+
+    rgb_img = nib.Nifti1Image(RGB.astype(np.float32), img.affine)
+    if set_type == '32g_25mm':
+        rgb_img = change_spacing_4D(rgb_img, new_spacing=1.25)
+        rgb_data = rgb_img.get_fdata() * reduced_mask_file
+        rgb_img = nib.Nifti1Image(rgb_data.astype(np.float32), img.affine)
+    print('Saving RGB: ', rgb_file)
+    nib.save(rgb_img, rgb_file)
+
+    # Process T1
+    print('Load T1 data ... ')
+
+    toc = time.time()
+
+    print('>>> processed case: {} in {:.2f} [sec]'.format(case_idx, (toc - tic)))
+
+
 def case_cb(case_idx, case):
     tic()
 
@@ -286,7 +375,6 @@ def case_cb(case_idx, case):
     t1_file_out = os.path.join(out_dir, 'T1.nii.gz')
 
     os.makedirs(out_dir, exist_ok=True)
-
     # Generate DTI
     print('Load DWI data ... ', end='')
     img = nib.load(dwi_file)
@@ -361,27 +449,32 @@ if __name__ == "__main__":
     # temp_try_t1w_with_brain(992774, 1.25)
     # brain_ids = sorted([str(i) for i in os.listdir(os.path.join(T1wConsts.DATASET_DIR)) if
     #                     i.isdigit()])  # if this is the correct syntax
-    brain_ids = sorted([str(i) for i in os.listdir('/home/cheng/Desktop/Dataset/Dataset-1.25/RGB-NOA/') if
-                        i.isdigit()])  # if this is the correct syntax
-    if num_procs <= 1:
-        # Serial execution
-        for case_idx in brain_ids:  # brain_ids[:1]:
-            temp_try_t1w_with_brain(case_idx, 1.25)
-    else:
-        # Parallel execution
-        jobs = []
-        for case_idx in brain_ids[:40]:
-            p = multiprocessing.Process(target=temp_try_t1w_with_brain, args=tuple(case_idx, 1.25))
-            jobs.append(p)
 
-        num_batches = int(np.ceil(len(jobs) / num_procs))
-        for batch in range(num_batches):
-            batch_jobs = jobs[num_procs * batch: min(num_procs * (batch + 1), len(jobs))]
-            for job in batch_jobs:
-                job.start()
+    create_all_rgb('/run/media/cheng/Passport Sheba/HCP-Diffusion-Files/Diffusion-Files/',
+                   '/run/media/cheng/Passport Sheba/HCP-Diffusion-Files/RGB-Files/',
+                   '/home/cheng/Desktop/Dataset/Dataset-1.25/Brain-Masks')
 
-            for job in batch_jobs:
-                job.join()
+    # brain_ids = sorted([str(i) for i in os.listdir('/home/cheng/Desktop/Dataset/Dataset-1.25/RGB-NOA/') if
+    #                     i.isdigit()])  # if this is the correct syntax
+    # if num_procs <= 1:
+    #     # Serial execution
+    #     for case_idx in brain_ids:  # brain_ids[:1]:
+    #         temp_try_t1w_with_brain(case_idx, 1.25)
+    # else:
+    #     # Parallel execution
+    #     jobs = []
+    #     for case_idx in brain_ids[:40]:
+    #         p = multiprocessing.Process(target=temp_try_t1w_with_brain, args=tuple(case_idx, 1.25))
+    #         jobs.append(p)
+    #
+    #     num_batches = int(np.ceil(len(jobs) / num_procs))
+    #     for batch in range(num_batches):
+    #         batch_jobs = jobs[num_procs * batch: min(num_procs * (batch + 1), len(jobs))]
+    #         for job in batch_jobs:
+    #             job.start()
+    #
+    #         for job in batch_jobs:
+    #             job.join()
     '''
     brain_ids = sorted([str(i) for i in os.listdir(os.path.join(data_dir, consts.SUB_DIR_DICT['t1w'])) if
                         i.isdigit()])  # if this is the correct syntax
