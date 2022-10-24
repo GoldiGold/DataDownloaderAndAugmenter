@@ -267,7 +267,7 @@ def update_goldi_files(case_idx, new_spacing=1.25):
 
 def create_all_rgb(path: str, out_path: str, masks_path: str):
     counter = 0
-    for num in rgb_brains[200:201]:
+    for num in rgb_brains[201:400]:
         if len(os.listdir(os.path.join(path, num))) > 0 and os.path.isdir(os.path.join(path, num, 'Diffusion')):
             create_rgb(num, os.path.join(path, num, 'Diffusion'), os.path.join(out_path, num), masks_path)
             counter += 1
