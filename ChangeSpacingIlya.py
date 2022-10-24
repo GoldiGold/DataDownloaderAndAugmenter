@@ -266,9 +266,13 @@ def update_goldi_files(case_idx, new_spacing=1.25):
 
 
 def create_all_rgb(path: str, out_path: str, masks_path: str):
-    for num in rgb_brains[:1]:
-        create_rgb(num, os.path.join(path, num, 'Diffusion'), out_path, masks_path)
-
+    counter = 0
+    for num in rgb_brains[200:201]:
+        if len(os.listdir(os.path.join(path, num))) > 0 and os.path.isdir(os.path.join(path, num, 'Diffusion')):
+            create_rgb(num, os.path.join(path, num, 'Diffusion'), os.path.join(out_path, num), masks_path)
+            counter += 1
+            if counter % 5 == 0:
+                print(f'created {counter})')
 
 def create_rgb(case_idx, case_path, out_path, mask_path):
     tic = time.time()
@@ -283,16 +287,18 @@ def create_rgb(case_idx, case_path, out_path, mask_path):
     fa_file = os.path.join(out_path, 'FA.nii.gz')
     rgb_file = os.path.join(out_path, 'RGB.nii.gz')
     pdd_file = os.path.join(out_path, 'PDD.nii.gz')
+    if not os.path.isdir(out_path):
+        os.mkdir(out_path)
     print(f'Started Working on case: {case_idx}')
 
     # Generate DTI
     print('Load DWI data ... ', end='')
     img = nib.load(dwi_file)
-    data = img.get_fdata()
+    data = img.get_fdata().astype(np.float32)
     print(data.shape, data.dtype)
 
     print('Load mask ... ', end='')
-    mask_lq = nib.load(mask_file).get_fdata()
+    mask_lq = nib.load(mask_file).get_fdata().astype(np.float32)
     # mask_lq = mask_hq.get_fdata()
     # if set_type == '32g_25mm':
     #     mask_lq = change_spacing_4D(mask_hq, new_spacing=1.25)
@@ -311,33 +317,43 @@ def create_rgb(case_idx, case_path, out_path, mask_path):
     tenmodel = dti.TensorModel(gtab)
     tenfit = tenmodel.fit(maskdata)
 
+    del maskdata
+
     print('Compute FA ... ', end='')
-    FA = fractional_anisotropy(tenfit.evals)
+    FA = fractional_anisotropy(tenfit.evals).astype(np.float32)
     print(FA.shape, FA.dtype)
     FA[np.isnan(FA)] = 0
     FA = np.clip(FA, 0, 1)
 
     fa_img = nib.Nifti1Image(FA.astype(np.float32), img.affine)
-    if set_type == '32g_25mm':
-        fa_img = change_spacing_4D(fa_img, new_spacing=1.25)
+    # if set_type == '32g_25mm':
+    fa_img = change_spacing_4D(fa_img, new_spacing=1.25)
     print('Saving FA: ', fa_file)
     nib.save(fa_img, fa_file)
 
-    PDD = tenfit.evecs[..., 0]
-    pdd_img = nib.Nifti1Image(PDD.astype(np.float32), img.affine)
-    if set_type == '32g_25mm':
-        pdd_img = change_spacing_4D(pdd_img, new_spacing=1.25)
-    print('Saving PDD: ', pdd_file)
-    nib.save(pdd_img, pdd_file)
+    # TODO: TO CREATE PDD IF NEEDED, BUT FOR THE RGB CREATION IT ISN'T NEEDED
+    # PDD = tenfit.evecs[..., 0]
+    # pdd_img = nib.Nifti1Image(PDD.astype(np.float32), img.affine)
+    # # if set_type == '32g_25mm':
+    # pdd_img = change_spacing_4D(pdd_img, new_spacing=1.25)
+    # print('Saving PDD: ', pdd_file)
+    # nib.save(pdd_img, pdd_file)
 
+
+    # FA = nib.load('/run/media/cheng/Passport Sheba/HCP-Diffusion-Files/RGB-Files/100206/FA.nii.gz').get_fdata().astype(np.float32)
     print('Compute RGB ... ', end='')
     RGB = color_fa(FA, tenfit.evecs)
 
     rgb_img = nib.Nifti1Image(RGB.astype(np.float32), img.affine)
-    if set_type == '32g_25mm':
-        rgb_img = change_spacing_4D(rgb_img, new_spacing=1.25)
-        rgb_data = rgb_img.get_fdata() * reduced_mask_file
-        rgb_img = nib.Nifti1Image(rgb_data.astype(np.float32), img.affine)
+    # if set_type == '32g_25mm':
+    rgb_img = change_spacing_4D(rgb_img, new_spacing=1.25)
+
+    print('Load reduced mask ... ', end='')
+    reduced_mask_file = nib.load(reduced_mask_file)
+    data = reduced_mask_file.get_fdata().astype(np.float32)
+
+    rgb_data = rgb_img.get_fdata().astype(np.float32) * data[..., np.newaxis]
+    rgb_img = nib.Nifti1Image(rgb_data.astype(np.float32), img.affine)
     print('Saving RGB: ', rgb_file)
     nib.save(rgb_img, rgb_file)
 
@@ -451,7 +467,7 @@ if __name__ == "__main__":
     #                     i.isdigit()])  # if this is the correct syntax
 
     create_all_rgb('/run/media/cheng/Passport Sheba/HCP-Diffusion-Files/Diffusion-Files/',
-                   '/run/media/cheng/Passport Sheba/HCP-Diffusion-Files/RGB-Files/',
+                   '/run/media/cheng/Maxwell_HD/Goldi_Folder/RGB-Files/',
                    '/home/cheng/Desktop/Dataset/Dataset-1.25/Brain-Masks')
 
     # brain_ids = sorted([str(i) for i in os.listdir('/home/cheng/Desktop/Dataset/Dataset-1.25/RGB-NOA/') if
