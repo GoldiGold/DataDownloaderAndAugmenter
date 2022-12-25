@@ -24,6 +24,7 @@ def generate_masks(brains_path: str, new_masks_path: str, mode: str):
         # read json file label 2 value
         label2value = 'all sides split'
         mask_name = '3rd mask'
+    #  THIS IS THE MODE WE USED IN THE MODEL
     elif mode == 'fourth':
         # read json file label 2 new label
         label2new_label = 'minimal split'
@@ -33,10 +34,10 @@ def generate_masks(brains_path: str, new_masks_path: str, mode: str):
     else:
         # Set as default to the first case of split all.
         # read json file label 2 new label
-        label2new_label = 'all regions and sides split'
+        label2new_label = 'minimal split'
         # read json file label 2 value
-        label2value = 'all regions and sides split'
-        mask_name = '1st mask'
+        label2value = 'minimal split'
+        mask_name = '4th mask'  # IRELLEVENT
         # masks_counter = 0
         # existed_counter = 0
         # for idx in indices:
@@ -55,7 +56,7 @@ def generate_masks(brains_path: str, new_masks_path: str, mode: str):
         os.mkdir(subdir)
     masks_created = ChangeMaskFiles.change_all_masks(label2new_label_name=label2new_label, label2value_name=label2value,
                                                      brains_path=brains_path, new_masks_path=subdir,
-                                                     brain_ids=brain_ids[1:])
+                                                     brain_ids=brain_ids)
     return masks_created
 
 
