@@ -15,7 +15,8 @@ from dipy.reconst.dti import fractional_anisotropy, color_fa
 
 # misc
 import consts
-import T1wConsts
+import FinalConsts
+from FinalConsts import FILES, FILES_KEYS, DATASET_07, DATASET_125
 from consts import rgb_brains
 import time
 
@@ -27,22 +28,13 @@ data_dir = os.path.join(consts.SSD_DATASET)
 set_type = r'32g_25mm'  # Diffusion / 32g_25mm
 num_procs = 1  # Multiprocessing mode
 case_list = r'hcp105_list.txt'
-generated_masks_type = 'all regions and sides split'
+generated_masks_type = 'minimal split'
 
 mask_sizes = {'HCP': (260, 311, 260), 'HARDI': (145, 174, 145), 'HARDI_NOA': (144, 160, 144), 'CLINICAL': (73, 87, 73)}
 
 
-def change_spacing_4D(img_in, new_spacing=1.25):
-    # data = img_in.get_data()
-
-    # img_in = nib.load(os.path.join(data_dir, img_id, consts.T1W_NAME))
-    data = img_in.get_fdata()
-    image_3d = False
-    if data.ndim == 3:
-        image_3d = True
-        data = data[..., np.newaxis]
-
-    old_shape = data.shape
+def update_affine_matrix(img_in: nib.Nifti1Image, old_shape, new_spacing=1.25):
+    # old_shape = img_data.shape
     img_spacing = abs(img_in.affine[0, 0])
 
     # copy very important; otherwise new_affine changes will also be in old affine
@@ -62,12 +54,33 @@ def change_spacing_4D(img_in, new_spacing=1.25):
         new_shape = np.floor(np.array(img_in.get_fdata().shape) * (img_spacing / new_spacing))
     new_shape = new_shape[:3]  # drop last dim
 
+    affine_map = AffineMap(np.eye(4),
+                           new_shape, new_affine,
+                           old_shape, img_in.affine)
+
+    return affine_map, new_shape, new_affine
+
+
+def change_spacing_4D(img_in: nib.Nifti1Image, new_spacing=1.25):
+    # data = img_in.get_data()
+
+    # img_in = nib.load(os.path.join(data_dir, img_id, consts.T1W_NAME))
+    data = img_in.get_fdata()
+    old_shape = data.shape
+
+    image_3d = False
+    if data.ndim == 3:
+        image_3d = True
+        data = data[..., np.newaxis]
+
+    affine_map, new_shape, new_affine = update_affine_matrix(img_in, old_shape, new_spacing)
+
     new_data = []
     for i in range(data.shape[3]):
-        affine_map = AffineMap(np.eye(4),
-                               new_shape, new_affine,
-                               old_shape, img_in.affine
-                               )
+        # affine_map = AffineMap(np.eye(4),
+        #                        new_shape, new_affine,
+        #                        old_shape, img_in.affine
+        #                        )
         # Generally nearest a bit better results than linear interpolation
         # res = affine_map.transform(data[:,:,:,i], interp="linear")
         res = affine_map.transform(data[:, :, :, i], interpolation="nearest")
@@ -85,30 +98,25 @@ def change_spacing_4D(img_in, new_spacing=1.25):
 
 def temp_try_t1w_with_brain(brain_id, new_spacing=1.25):
     in_files_dict = {
-        't1': None,  # os.path.join(T1wConsts.DATASET_DIR, str(brain_id), 'T1w', T1wConsts.OLD_T1W_NAME),
-        'brain_mask': os.path.join('/home/cheng/Desktop/Dataset/Dataset-1.25/Brain-Masks-NOA/', str(brain_id),
-                                   T1wConsts.BRAIN_MASK_NAME),
-        # os.path.join(T1wConsts.DATASET_DIR, str(brain_id), 'T1w', T1wConsts.OLD_BRAIN_MASK_NAME),
-        'generated_mask': None,
-        'general_mask': None,  # os.path.join(T1wConsts.DATASET_DIR, str(brain_id), 'T1w', T1wConsts.OLD_MASK_NAME),
-        'rgb': os.path.join(T1wConsts.SSD_DATASET, T1wConsts.DATASET_DICT['rgb'], str(brain_id), T1wConsts.RGB_NAME)}
+        't1w': os.path.join(DATASET_07['t1w'], str(brain_id), FILES['t1w']['old']),
+        'brain_mask': os.path.join(DATASET_07['brain_masks'], str(brain_id), FILES['brain_masks']['old']),
+        'gt': None,
+        'general_masks': None,
+        'rgb': None}
     out_dir_dict = {
-        't1': None,  # os.path.join(T1wConsts.SSD_DATASET, T1wConsts.DATASET_DICT['t1w'], str(brain_id)),
-        'brain_mask': f'/home/cheng/Desktop/Dataset/Dataset-1.25/Brain-Masks-NOA-NEW-SIZE/{str(brain_id)}/',
-        # os.path.join(T1wConsts.SSD_DATASET, T1wConsts.DATASET_DICT['brain'], str(brain_id)),
-        'generated_mask': None,
-        'general_mask': os.path.join(T1wConsts.SSD_DATASET, T1wConsts.DATASET_DICT['general'], str(brain_id)),
-        'rgb': os.path.join(T1wConsts.SSD_DATASET, T1wConsts.RGB_NEW_SIZE, str(brain_id))}
+        't1w': os.path.join(DATASET_125['t1w'], str(brain_id)),
+        'brain_masks': os.path.join(DATASET_125['brain_masks'], str(brain_id)),
+        'gt': None,
+        'general_mask': None,
+        'rgb': None}
     out_files_dict = {
-        't1': None if out_dir_dict['t1'] is None else os.path.join(out_dir_dict['t1'], T1wConsts.T1W_NAME),
-        'brain_mask': None if out_dir_dict['brain_mask'] is None else os.path.join(out_dir_dict['brain_mask'],
-                                                                                   T1wConsts.BRAIN_MASK_NAME),
-        'generated_mask': None if out_dir_dict['generated_mask'] is None else os.path.join(
-            out_dir_dict['generated_mask'],
-            T1wConsts.MASK_NAME),
-        'general_mask': None if out_dir_dict['general_mask'] is None else os.path.join(out_dir_dict['general_mask'],
-                                                                                       T1wConsts.MASK_NAME),
-        'rgb': None if out_dir_dict['rgb'] is None else os.path.join(out_dir_dict['rgb'], T1wConsts.RGB_NAME)}
+        't1': None if out_dir_dict['t1'] is None else os.path.join(out_dir_dict['t1'], FILES['t1w']['new']),
+        'brain_masks': None if out_dir_dict['brain_mask'] is None else os.path.join(out_dir_dict['brain_mask'],
+                                                                                    FILES['brain_mask']['new']),
+        'gt': None if out_dir_dict['gt'] is None else os.path.join(out_dir_dict['gt'], FILES['gt']['new']),
+        'general_masks': None if out_dir_dict['general_mask'] is None else os.path.join(out_dir_dict['general_mask'],
+                                                                                        FILES['general_masks']['new']),
+        'rgb': None if out_dir_dict['rgb'] is None else os.path.join(out_dir_dict['rgb'], FILES['rgb']['new'])}
 
     for dirs in out_dir_dict.values():
         if dirs is not None:
@@ -274,6 +282,7 @@ def create_all_rgb(path: str, out_path: str, masks_path: str):
             if counter % 5 == 0:
                 print(f'created {counter})')
 
+
 def create_rgb(case_idx, case_path, out_path, mask_path):
     tic = time.time()
 
@@ -302,9 +311,9 @@ def create_rgb(case_idx, case_path, out_path, mask_path):
     # mask_lq = mask_hq.get_fdata()
     # if set_type == '32g_25mm':
     #     mask_lq = change_spacing_4D(mask_hq, new_spacing=1.25)
-        # mask_lq_file = os.path.join(out_dir, 'brain_mask.nii.gz')
-        # nib.save(mask_lq, mask_lq_file)
-        # mask_lq = mask_lq.get_fdata()
+    # mask_lq_file = os.path.join(out_dir, 'brain_mask.nii.gz')
+    # nib.save(mask_lq, mask_lq_file)
+    # mask_lq = mask_lq.get_fdata()
     maskdata = data * mask_lq[..., np.newaxis]
     # maskdata = data
     print(maskdata.shape, maskdata.dtype)
@@ -338,7 +347,6 @@ def create_rgb(case_idx, case_path, out_path, mask_path):
     # pdd_img = change_spacing_4D(pdd_img, new_spacing=1.25)
     # print('Saving PDD: ', pdd_file)
     # nib.save(pdd_img, pdd_file)
-
 
     # FA = nib.load('/run/media/cheng/Passport Sheba/HCP-Diffusion-Files/RGB-Files/100206/FA.nii.gz').get_fdata().astype(np.float32)
     print('Compute RGB ... ', end='')
@@ -465,10 +473,10 @@ if __name__ == "__main__":
     # temp_try_t1w_with_brain(992774, 1.25)
     # brain_ids = sorted([str(i) for i in os.listdir(os.path.join(T1wConsts.DATASET_DIR)) if
     #                     i.isdigit()])  # if this is the correct syntax
-
-    create_all_rgb('/run/media/cheng/Passport Sheba/HCP-Diffusion-Files/Diffusion-Files/',
-                   '/run/media/cheng/Maxwell_HD/Goldi_Folder/RGB-Files/',
-                   '/home/cheng/Desktop/Dataset/Dataset-1.25/Brain-Masks')
+    temp_try_t1w_with_brain(100206)
+    # create_all_rgb('/run/media/cheng/Passport Sheba/HCP-Diffusion-Files/Diffusion-Files/',
+    #                '/run/media/cheng/Maxwell_HD/Goldi_Folder/RGB-Files/',
+    #                '/home/cheng/Desktop/Dataset/Dataset-1.25/Brain-Masks')
 
     # brain_ids = sorted([str(i) for i in os.listdir('/home/cheng/Desktop/Dataset/Dataset-1.25/RGB-NOA/') if
     #                     i.isdigit()])  # if this is the correct syntax
