@@ -2,13 +2,16 @@ import os, sys
 import json
 import consts
 
-
+'''
+THIS FILE CONSISTS FUNCTIONS THAT ARE RESPONSIBLE FOR CREATING THE JSON FILES WE NEED IN ORDER TO CREATE THE BRAIN GT
+MASKS (AND I THE FUTURE THE GREY MATTER MASKS) 
+'''
 def get_dataset_names(data_dir: str = consts.DATASET_DIR):
     '''
     This function gets the names (or ids) of the brains in the dataset and returns a list of the ids (in a bash script
     format) of them
     :param data_dir: the data directory that holds the dataset and tables
-    :return: the list it self
+    :return: the list itself
     '''
     os.chdir(data_dir)
     dirs = os.listdir()
@@ -24,7 +27,7 @@ def get_dataset_names(data_dir: str = consts.DATASET_DIR):
 
 def compare_tables(table_dir: str):
     '''
-    Thus function checks to see if the labels file that was generated from the apac+aseg.nii.gz files are the same
+    This function checks to see if the labels file that was generated from the apac+aseg.nii.gz files are the same
     :param table_dir: the directory of the table files
     :return: True and 0 if they are the same, False and the file id's that broke the similarity
     '''

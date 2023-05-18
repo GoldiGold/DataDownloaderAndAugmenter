@@ -1,1 +1,3 @@
-/mask-100307.nii.gz
+/BrainScans/mask-100307.nii.gz
+*.nii.gz
+/BrainScans/*.nii.gz

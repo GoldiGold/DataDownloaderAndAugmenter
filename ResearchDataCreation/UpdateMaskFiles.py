@@ -3,8 +3,6 @@ import os
 import consts
 import numpy as np
 import json
-from createTables import get_dataset_names
-from nilearn import plotting
 
 '''
 In editing the brains mask we want to keep only the values of the LABELS in the consts files (and maybe not 

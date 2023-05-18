@@ -4,7 +4,7 @@ import consts
 import T1wConsts
 import numpy as np
 import json
-from createTables import get_dataset_names
+from ResearchDataCreation.CreateTables import get_dataset_names
 # from nilearn import plotting
 
 '''
