@@ -15,10 +15,8 @@ def check_affine_matrix_polarity(path: str):
     # data = brain.get_fdata()
     # print(aff, data.shape)
 
-# def func(brain: nib.Nifti1Image):
-    # brain.get_fdata()
 
-if __name__ == '__main__':
+def count_negative_polarities():
     dist_negative_counter, angle_negative_counter = 0, 0
     brain_dir = "/media/chen/Maxwell_HD/Computer_Files/home/cheng/Desktop/Dataset/T1w/"
     brains = os.listdir(brain_dir)
@@ -29,3 +27,26 @@ if __name__ == '__main__':
     # check_affine_matrix_polarity("/media/chen/Maxwell_HD/Computer_Files/home/cheng/Desktop/Dataset/T1w/100206/T1w.nii.gz")
     print(f'out of {len(brains)} brains {dist_negative_counter} have negative value in the dist columns')
     print(f'out of {len(brains)} brains {angle_negative_counter} have negative value in the angle blocks')
+
+
+def func(brain: nib.Nifti1Image):
+    brain.get_fdata()
+
+
+if __name__ == '__main__':
+    new_brain = '/media/chen/Maxwell_HD/Goldi_Folder/Dataset-T1w/1.25/T1w/100206/T1w.nii.gz'
+    old_brain = '/media/chen/Maxwell_HD/Computer_Files/home/cheng/Desktop/Dataset/T1w/100206/T1w.nii.gz'
+    super_old_brain = '/media/chen/Maxwell_HD/Goldi_Folder/Dataset-T1w/0.7/T1w/100206/T1w.nii.gz'
+
+    new_scan = nib.load(new_brain)
+    old_scan = nib.load(old_brain)
+    super_old_scan = nib.load(super_old_brain)
+
+    print('new affine:')
+    print(new_scan.affine)
+
+    print('old affine:')
+    print(old_scan.affine)
+
+    print('super old affine:')
+    print(super_old_scan.affine)
