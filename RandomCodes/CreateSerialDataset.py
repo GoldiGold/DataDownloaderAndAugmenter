@@ -1,7 +1,7 @@
 '''  DEPRECATED   '''
 
 import os
-import consts
+import constsDeprecated
 import shutil
 
 serial_dataset_path = 'sdp'

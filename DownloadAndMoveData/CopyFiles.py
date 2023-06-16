@@ -3,8 +3,8 @@ import shutil
 
 import FinalConsts
 from FinalConsts import FILES
-import consts
-import T1wConsts
+import constsDeprecated
+import T1wConstsDeprecated
 import nibabel as nib
 
 # import torch

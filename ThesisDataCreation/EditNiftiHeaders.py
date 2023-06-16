@@ -1,7 +1,7 @@
 import nibabel as nib
 
 import os
-import consts
+import constsDeprecated
 
 if __name__ == '__main__':
     mask_name = ('mask.nii.gz', 'brain_mask.nii.gz')

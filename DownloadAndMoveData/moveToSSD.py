@@ -1,4 +1,4 @@
-import consts
+import constsDeprecated
 import os
 import shutil
 

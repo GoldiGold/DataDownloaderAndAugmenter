@@ -1,5 +1,5 @@
 import os
-import consts
+import constsDeprecated
 
 
 def remove_suffix_from_names(directory_path: str, suffix: str):

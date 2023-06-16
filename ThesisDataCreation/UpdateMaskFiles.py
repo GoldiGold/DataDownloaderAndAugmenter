@@ -1,6 +1,6 @@
 import nibabel as nib
 import os
-import consts
+import constsDeprecated
 import numpy as np
 import json
 

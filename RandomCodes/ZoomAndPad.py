@@ -3,7 +3,7 @@ import numpy as np
 import nibabel as nib
 
 # misc
-import consts
+import constsDeprecated
 import os
 
 

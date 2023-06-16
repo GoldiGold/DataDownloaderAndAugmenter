@@ -1,7 +1,7 @@
 import os
 import json
 import ChangeMaskFiles
-import consts
+import constsDeprecated
 
 
 def generate_masks(brains_path: str, new_masks_path: str, mode: str):

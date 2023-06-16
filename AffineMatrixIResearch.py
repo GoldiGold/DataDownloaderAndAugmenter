@@ -50,3 +50,5 @@ if __name__ == '__main__':
 
     print('super old affine:')
     print(super_old_scan.affine)
+
+    count_negative_polarities()

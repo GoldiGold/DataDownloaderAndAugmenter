@@ -1,7 +1,7 @@
 import nibabel as nib
 import os
 import numpy as np
-import consts
+import constsDeprecated
 from nibabel.testing import data_path
 from nilearn import plotting
 

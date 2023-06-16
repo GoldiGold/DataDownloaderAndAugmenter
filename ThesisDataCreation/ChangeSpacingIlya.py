@@ -14,10 +14,10 @@ from dipy.core.gradients import gradient_table
 from dipy.reconst.dti import fractional_anisotropy, color_fa
 
 # misc
-import consts
+import constsDeprecated
 import FinalConsts
 from FinalConsts import FILES, FILES_KEYS, DATASET_07, DATASET_125
-from consts import rgb_brains
+from constsDeprecated import rgb_brains
 import time
 
 # from utils import tic, toc
@@ -112,10 +112,10 @@ def temp_try_t1w_with_brain(brain_id, new_spacing=1.25):
     out_files_dict = {
         't1w': None if out_dir_dict['t1w'] is None else os.path.join(out_dir_dict['t1w'], FILES['t1w']['new']),
         'brain_masks': None if out_dir_dict['brain_masks'] is None else os.path.join(out_dir_dict['brain_masks'],
-                                                                                    FILES['brain_masks']['new']),
+                                                                                     FILES['brain_masks']['new']),
         'gt': None if out_dir_dict['gt'] is None else os.path.join(out_dir_dict['gt'], FILES['gt']['new']),
         'general_masks': None if out_dir_dict['general_masks'] is None else os.path.join(out_dir_dict['general_masks'],
-                                                                                        FILES['general_masks']['new']),
+                                                                                         FILES['general_masks']['new']),
         'rgb': None if out_dir_dict['rgb'] is None else os.path.join(out_dir_dict['rgb'], FILES['rgb']['new'])}
 
     for dirs in out_dir_dict.values():

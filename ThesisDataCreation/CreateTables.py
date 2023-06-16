@@ -1,6 +1,6 @@
 import os, sys
 import json
-import consts
+import constsDeprecated
 
 '''
 THIS FILE CONSISTS FUNCTIONS THAT ARE RESPONSIBLE FOR CREATING THE JSON FILES WE NEED IN ORDER TO CREATE THE BRAIN GT
