@@ -1,8 +1,8 @@
 TABLE_DIR = '/run/media/cheng/Maxwell_HD/Goldi_Folder/Tables/'
 
-FILES_KEYS = ['t1w', 'brain_masks', 'gt', 'general_masks',  'rgb']
+FILES_KEYS = ['t1w', 'brain_masks', 'gt', 'general_masks', 'rgb']
 
-OLD_DATASET = '/media/chen/Maxwell_HD/Goldi_Folder/Dataset/'
+OLD_DATASET = '/media/chen/Maxwell_HD/Goldi_Folder/Dataset-from-HCP/'
 
 # THIS IS THE UNPROCESSED DATASET OF FILES STRAIGHT FROM THE HCP SITE
 DATASET_07 = {'t1w': '/media/chen/Maxwell_HD/Goldi_Folder/Dataset-T1w/0.7/T1w',
@@ -19,11 +19,17 @@ DATASET_125 = {'t1w': '/media/chen/Maxwell_HD/Goldi_Folder/Dataset-T1w/1.25/T1w'
                'rgb': '/media/chen/Maxwell_HD/Goldi_Folder/Dataset-T1w/1.25/RGB'}
 
 RGB_NEW_SIZE = 'RGB-NOA-NEW-SIZE'
-FILES = {'t1w':           {'old': 'T1w_acpc_dc_restore.nii.gz', 'new': 'T1w.nii.gz'},
-         'general_masks': {'old': 'aparc+aseg.nii.gz',          'new': 'aparc+aseg.nii.gz'},
-         'gt':            {'old': 'aparc+aseg.nii.gz',          'new': 'gt.nii.gz'},
-         'brain_masks':   {'old': 'brainmask_fs.nii.gz',        'new': 'brain_mask.nii.gz'},
-         'rgb':           {'old': 'RGB.nii.gz', 'new':          'RGB.nii.gz'}}
+NEW_FILES = {'t1w':             'T1w.nii.gz',
+             'general_masks':   'aparc+aseg.nii.gz',
+             'gt':              'gt.nii.gz',
+             'brain_masks':     'brain_mask.nii.gz',
+             'rgb':             'RGB.nii.gz'}
+
+OLD_FILES = {'t1w':             'T1w_acpc_dc_restore_brain.nii.gz',
+             'general_masks':   'aparc+aseg.nii.gz',
+             'gt':              'aparc+aseg.nii.gz',
+             'brain_masks':     'brainmask_fs.nii.gz',
+             'rgb':             'RGB.nii.gz'}
 
 LABELS = ['CTX-LH-PARSOPERCULARIS',
           'CTX-LH-PARSTRIANGULARIS',

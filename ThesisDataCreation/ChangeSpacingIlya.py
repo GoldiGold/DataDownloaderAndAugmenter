@@ -142,12 +142,6 @@ def update_single_brain(in_files_dict: dict, out_files_dict: dict, case_idx, new
               'DID NOT CHANGED SIZES'.format(case_idx, in_files_dict['brain_masks']))
         return 0
 
-    # # Generate DTI
-    # print('Load DWI data ... ', end='')
-    # img = nib.load(dwi_file)
-    # data = img.get_data()
-    # print(data.shape, data.dtype)
-
     print('Load mask ... ', end='')
 
     if os.path.isfile(out_files_dict['brain_masks']) and not recreate:
@@ -192,7 +186,10 @@ def update_single_brain(in_files_dict: dict, out_files_dict: dict, case_idx, new
 
 def update_goldi_files(case_idx, new_spacing=1.25):
     # case_dir = os.path.join(data_dir, case)
-    t1_file_in = os.path.join(data_dir, consts.SUB_DIR_DICT['t1w'], case_idx, consts.T1W_NAME)
+    files_in = {}
+    for file_key in FILES_KEYS:
+        files_in[file_key] = DATASET_07[file_key], case_idx, FILES[file_key]['old']
+    t1_file_in = os.path.join(DATASET_125['t1w'], case_idx, FILES['t1w']['old'])
     brain_mask_file = os.path.join(data_dir, consts.SUB_DIR_DICT['brain'], case_idx, consts.BRAIN_NAME)
     gen_mask_file = os.path.join(data_dir, consts.SUB_DIR_DICT['gen'], generated_masks_type, case_idx, consts.MASK_NAME)
     reg_mask_file = os.path.join(data_dir, consts.SUB_DIR_DICT['general'], case_idx, consts.OLD_MASK_NAME)

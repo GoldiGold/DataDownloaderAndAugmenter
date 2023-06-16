@@ -9,12 +9,12 @@ import nibabel as nib
 
 # import torch
 
-t1w_src_path_suffix = f'MNINonLinear/{consts.T1W_NAME}'
-t1w_dst_path_suffix = f'{consts.T1W_NAME}'
-mask_src_path_suffix = f'MNINonLinear/{consts.MASK_NAME}'
-mask_dst_path_suffix = f'{consts.MASK_NAME}'
-brain_masks_src_path = f'MNINonLinear/{consts.OLD_BRAIN_NAME}'
-brain_masks_dst_path = f'{consts.BRAIN_NAME}'
+t1w_src_path_suffix = f'MNINonLinear/{constsDeprecated.T1W_NAME}'
+t1w_dst_path_suffix = f'{constsDeprecated.T1W_NAME}'
+mask_src_path_suffix = f'MNINonLinear/{constsDeprecated.MASK_NAME}'
+mask_dst_path_suffix = f'{constsDeprecated.MASK_NAME}'
+brain_masks_src_path = f'MNINonLinear/{constsDeprecated.OLD_BRAIN_NAME}'
+brain_masks_dst_path = f'{constsDeprecated.BRAIN_NAME}'
 
 
 def save_as_tensors(brain_ids: list, brains_path: str, tensors_path: str, brain_file_name: str):
@@ -97,7 +97,7 @@ def copy_from_old_dataset_to_new_dataset(new_dataset_precision=0.7, old_dataset_
         raise ValueError('got wrong precision value, can\'t work with it')
 
     copy_counter = 0
-    for key in FinalConsts.FILES_KEYS:
+    for key in FinalConsts.FILES_KEYS[:1]:
         for idx in indices:
             src_file = os.path.join(old_dataset_path, idx, 'T1w', FILES[key]['old'])
             dst_dir = os.path.join(new_dataset[key], idx)
