@@ -19,17 +19,17 @@ DATASET_125 = {'t1w': '/media/chen/Maxwell_HD/Goldi_Folder/Dataset-T1w/1.25/T1w'
                'rgb': '/media/chen/Maxwell_HD/Goldi_Folder/Dataset-T1w/1.25/RGB'}
 
 RGB_NEW_SIZE = 'RGB-NOA-NEW-SIZE'
-NEW_FILES = {'t1w':             'T1w.nii.gz',
-             'general_masks':   'aparc+aseg.nii.gz',
-             'gt':              'gt.nii.gz',
-             'brain_masks':     'brain_mask.nii.gz',
-             'rgb':             'RGB.nii.gz'}
+NEW_FILES = {'t1w': 'T1w.nii.gz',
+             'general_masks': 'aparc+aseg.nii.gz',
+             'gt': 'gt.nii.gz',
+             'brain_masks': 'brain_mask.nii.gz',
+             'rgb': 'RGB.nii.gz'}
 
-OLD_FILES = {'t1w':             'T1w_acpc_dc_restore_brain.nii.gz',
-             'general_masks':   'aparc+aseg.nii.gz',
-             'gt':              'aparc+aseg.nii.gz',
-             'brain_masks':     'brainmask_fs.nii.gz',
-             'rgb':             'RGB.nii.gz'}
+OLD_FILES = {'t1w': 'T1w_acpc_dc_restore_brain.nii.gz',
+             'general_masks': 'aparc+aseg.nii.gz',
+             'gt': 'aparc+aseg.nii.gz',
+             'brain_masks': 'brainmask_fs.nii.gz',
+             'rgb': 'RGB.nii.gz'}
 
 LABELS = ['CTX-LH-PARSOPERCULARIS',
           'CTX-LH-PARSTRIANGULARIS',
@@ -38,6 +38,14 @@ LABELS = ['CTX-LH-PARSOPERCULARIS',
           'CTX-RH-PARSTRIANGULARIS',
           'CTX-RH-SUPERIORTEMPORAL']
 
+value2new_value = {
+    1018: 1,  # CTX-LH-PARSOPERCULARIS -> Broca
+    1020: 1,  # CTX-LH-PARSTRIANGULARIS -> Broca
+    1030: 2,  # CTX-LH-SUPERIORTEMPORAL -> Wernicke
+    2018: 1,  # CTX-RH-PARSOPERCULARIS -> Broca
+    2020: 1,  # CTX-RH-PARSTRIANGULARIS -> Broca
+    2030: 2   # CTX-RH-SUPERIORTEMPORAL -> Wernicke
+}
 TABLE_PREFIX = 'output-table-'
 NIFTI_POSTFIX = '.nii.gz'
 START_ID, END_ID = len('output-table-'), -len('.txt')
