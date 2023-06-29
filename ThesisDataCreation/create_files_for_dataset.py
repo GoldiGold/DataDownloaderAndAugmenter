@@ -129,11 +129,28 @@ def create_scan_with_new_spacing(scan_to_modify_path: str, modified_mask_path: s
 #  TODO: NEED TO CREATE A FUNCTION THAT CREATES ALL THE SCANS OF A SINGLE BRAIN
 #  TODO: NEED TO CREATE A FUNCTION THAT CREATES ALL THE SCANS OF ALL THE BRAINS
 
+def create_mask_from_t1w(t1w_path: str, new_mask_path: str):
+    t1w_scan = nib.load(t1w_path)
+    data = t1w_scan.get_fdata()
+    mask = data.copy()
+    mask[data != 0] = 1
+    mask_image = nib.Nifti1Image(mask, t1w_scan.affine)
+    nib.save(mask_image, new_mask_path)
+
+
 if __name__ == '__main__':
     file_key = 't1w'
-    # t1w_old_without_brain = nib.load('/media/chen/Maxwell_HD/Goldi_Folder/Dataset-from-HCP/100206/T1w/T1w_acpc_dc_restore_brain.nii.gz')
+    # THIS WAS A TEST TO SEE IF IT WORKS, USING A FILE I ALREADY CONVERTED IN THE PAST (PATIENT 100206)
+    # create_mask_with_new_spacing(opj(DATASET_07['brain_masks'], '100206', NEW_FILES['brain_masks']), 'temp.nii.gz',
+    #                              1.25)
+    # create_scan_with_new_spacing(opj(DATASET_07['t1w'], '100206', NEW_FILES['t1w']), modified_mask_path='temp.nii.gz',
+    #                              new_scan_path='scan_temp.nii.gz', new_spacing=1.25)
 
-    create_mask_with_new_spacing(opj(DATASET_07['brain_masks'], '100206', NEW_FILES['brain_masks']), 'temp.nii.gz',
-                                 1.25)
-    create_scan_with_new_spacing(opj(DATASET_07['t1w'], '100206', NEW_FILES['t1w']), modified_mask_path='temp.nii.gz',
-                                 new_scan_path='scan_temp.nii.gz', new_spacing=1.25)
+    hadassa_t1w_path = '/home/chen/Downloads/HadasaBrainData/T1_MNI_125mm_extracted.nii.gz'
+    hadassa_mask_path = '/home/chen/Downloads/HadasaBrainData/Hadassa_mask.nii.gz'
+    create_mask_from_t1w('/home/chen/Downloads/HadasaBrainData/T1_MNI_125mm_extracted.nii.gz', '/home/chen/Downloads/HadasaBrainData/Hadassa_mask.nii.gz')
+
+    modified_mask_path = '/home/chen/Downloads/HadasaBrainData/Hadassa_mask_in_shape.nii.gz'
+    modified_t1w_path = '/home/chen/Downloads/HadasaBrainData/Hadassa_t1w_in_shape.nii.gz'
+    create_mask_with_new_spacing(hadassa_mask_path, modified_mask_path)
+    create_scan_with_new_spacing(hadassa_t1w_path, modified_mask_path, modified_t1w_path)

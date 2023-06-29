@@ -1,5 +1,7 @@
 import nibabel as nib
+import torch
 import os
+import FinalConsts
 
 
 def check_affine_matrix_polarity(path: str):
@@ -29,11 +31,7 @@ def count_negative_polarities():
     print(f'out of {len(brains)} brains {angle_negative_counter} have negative value in the angle blocks')
 
 
-def func(brain: nib.Nifti1Image):
-    brain.get_fdata()
-
-
-if __name__ == '__main__':
+def research_polarities():
     new_brain = '/media/chen/Maxwell_HD/Goldi_Folder/Dataset-T1w/1.25/T1w/100206/T1w.nii.gz'
     old_brain = '/media/chen/Maxwell_HD/Computer_Files/home/cheng/Desktop/Dataset/T1w/100206/T1w.nii.gz'
     super_old_brain = '/media/chen/Maxwell_HD/Goldi_Folder/Dataset-T1w/0.7/T1w/100206/T1w.nii.gz'
@@ -52,3 +50,30 @@ if __name__ == '__main__':
     print(super_old_scan.affine)
 
     count_negative_polarities()
+
+def func(brain: nib.Nifti1Image):
+    brain.get_fdata()
+
+
+def research_hadassa():
+    t1w_scan = nib.load('/home/chen/Downloads/HadasaBrainData/T1_MNI_125mm_extracted.nii.gz')
+    rgb_scan = nib.load('/home/chen/Downloads/HadasaBrainData/RGB.nii.gz')
+    t1w_data = t1w_scan.get_fdata()
+    rgb_data = rgb_scan.get_fdata()
+    print(f't1w data shape: {t1w_data.shape}\n t1w affine: \n{t1w_scan.affine}')
+    print(f'rgb data shape: {rgb_data.shape}\n rgb affine: \n{rgb_scan.affine}')
+
+#     check a brain from the dataset
+    dataset_scan = nib.load(os.path.join('/media/chen/Maxwell_HD/Computer_Files/home/cheng/Desktop/Dataset/T1w/100206/T1w.nii.gz'))
+    dataset_data = dataset_scan.get_fdata()
+    print(f'from dataset data shape: {dataset_data.shape}\n from dataset affine: \n{dataset_scan.affine}')
+
+    tensor_dataset = torch.load('/media/chen/Maxwell_HD/Computer_Files/home/cheng/Desktop/Dataset/T1w-Tensors/100206.pt')
+    print(tensor_dataset.shape)
+    tensor_dataset = torch.load(
+        '/media/chen/Maxwell_HD/Computer_Files/home/cheng/Desktop/Dataset/RGB-Tensors/100206.pt')
+    print(tensor_dataset.shape)
+
+
+if __name__ == '__main__':
+    research_hadassa()
