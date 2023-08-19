@@ -4,7 +4,7 @@ import constsDeprecated
 import T1wConstsDeprecated
 import numpy as np
 import json
-from ThesisDataCreation.CreateTables import get_dataset_names
+from ThesisDataCreationOld.CreateTables import get_dataset_names
 # from nilearn import plotting
 
 '''
