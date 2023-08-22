@@ -1,6 +1,7 @@
 TABLE_DIR = '/run/media/cheng/Maxwell_HD/Goldi_Folder/Tables/'
 
 FILES_KEYS = ['t1w', 'brain_masks', 'gt', 'general_masks', 'rgb']
+SCANS_KEYS = ['t1w', 'gt', 'general_masks', 'rgb']
 
 OLD_DATASET = '/media/chen/Maxwell_HD/Goldi_Folder/Dataset-from-HCP/'
 
@@ -19,6 +20,7 @@ DATASET_125 = {'t1w': '/media/chen/Maxwell_HD/Goldi_Folder/Dataset-T1w/1.25/T1w'
                'rgb': '/media/chen/Maxwell_HD/Goldi_Folder/Dataset-T1w/1.25/RGB'}
 
 RGB_NEW_SIZE = 'RGB-NOA-NEW-SIZE'
+
 NEW_FILES = {'t1w': 'T1w.nii.gz',
              'general_masks': 'aparc+aseg.nii.gz',
              'gt': 'gt.nii.gz',
@@ -44,8 +46,16 @@ value2new_value = {
     1030: 2,  # CTX-LH-SUPERIORTEMPORAL -> Wernicke
     2018: 1,  # CTX-RH-PARSOPERCULARIS -> Broca
     2020: 1,  # CTX-RH-PARSTRIANGULARIS -> Broca
-    2030: 2   # CTX-RH-SUPERIORTEMPORAL -> Wernicke
+    2030: 2  # CTX-RH-SUPERIORTEMPORAL -> Wernicke
 }
+
+# before normalization
+T1W_MAX = 3550.2229
+T1W_MIN = 0.0
+# before normalization
+RGB_MAX = 1.0
+RGB_MINN = 0.0
+
 TABLE_PREFIX = 'output-table-'
 NIFTI_POSTFIX = '.nii.gz'
 START_ID, END_ID = len('output-table-'), -len('.txt')

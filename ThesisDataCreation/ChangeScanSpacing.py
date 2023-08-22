@@ -82,7 +82,7 @@ def change_scan_spacing(img_in: nib.Nifti1Image, new_spacing=1.25, tensor_polari
 
 
 def create_scan_with_new_spacing(old_scan_path: str, new_scan_path: str, new_mask_path: str, new_spacing=1.25,
-                                 should_recreate: bool = False, tensor_polarity: bool = True):
+                                 tensor_polarity: bool = True):
     '''
     Receiving a 3d or 4d scan
     '''
@@ -124,11 +124,12 @@ def create_scan_with_new_spacing(old_scan_path: str, new_scan_path: str, new_mas
     print(f'Created file: {new_scan_path}')
 
 
-def create_mask_with_new_spacing(mask_path: str, out_mask_path: str, new_spacing=1.25, tensor_polarity: bool = True):
-    if not os.path.isfile(mask_path):
-        print(f'THIS MASK FILE DOESN\'T EXIST {mask_path}')
+def create_mask_with_new_spacing(old_masks_path: str, new_mask_path: str, new_spacing=1.25,
+                                 tensor_polarity: bool = True):
+    if not os.path.isfile(old_masks_path):
+        print(f'THIS MASK FILE DOESN\'T EXIST {old_masks_path}')
         return 0
 
-    old_mask = nib.load(mask_path)
+    old_mask = nib.load(old_masks_path)
     new_mask_image = change_scan_spacing(old_mask)
-    nib.save(new_mask_image, out_mask_path)
+    nib.save(new_mask_image, new_mask_path)
