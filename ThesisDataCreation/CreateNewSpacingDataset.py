@@ -11,10 +11,10 @@ def create_all_masks(old_masks_path, new_masks_path, new_spacing=1.25):
     masks_ids = os.listdir(old_masks_path)
 
     for mask_id in masks_ids:
-        old_mask_path = os.path.join(old_masks_path, mask_id, NEW_FILES['barin_masks'])
-        new_mask_path = os.path.join(new_masks_path, mask_id, NEW_FILES['barin_masks'])
+        old_mask_path = os.path.join(old_masks_path, mask_id, NEW_FILES['brain_masks'])
+        new_mask_path = os.path.join(new_masks_path, mask_id, NEW_FILES['brain_masks'])
         # create the dirs that will include the mask file
-        os.makedirs(new_mask_path, exist_ok=True)
+        os.makedirs(os.path.join(new_masks_path, mask_id), exist_ok=True)
 
         create_mask_with_new_spacing(old_mask_path, new_mask_path, new_spacing)
 
@@ -25,10 +25,10 @@ def create_all_scans_of_single_type(old_scans_path, new_scans_path, new_masks_pa
     for i, scan_id in enumerate(old_scans_ids):
         old_scan_path = os.path.join(old_scans_path, scan_id, NEW_FILES[scan_type])
         new_scan_path = os.path.join(new_scans_path, scan_id, NEW_FILES[scan_type])
-        new_mask_path = os.path.join(new_masks_path, scan_id, NEW_FILES['barin_masks'])
+        new_mask_path = os.path.join(new_masks_path, scan_id, NEW_FILES['brain_masks'])
 
         # create the dirs that will include the mask file
-        os.makedirs(new_scan_path, exist_ok=True)
+        os.makedirs(os.path.join(new_scans_path, scan_id), exist_ok=True)
 
         create_scan_with_new_spacing(old_scan_path, new_scan_path, new_mask_path, new_spacing)
 
