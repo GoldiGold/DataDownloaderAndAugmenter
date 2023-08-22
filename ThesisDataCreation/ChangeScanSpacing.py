@@ -114,14 +114,14 @@ def create_scan_with_new_spacing(old_scan_path: str, new_scan_path: str, new_mas
 
     if is_scan_3d:
         # the scan was 3d and we return it to normal
-        new_scan_data = new_scan_data[:3]
+        new_scan_data = new_scan_data[..., 0]
 
     nib.save(
         nib.Nifti1Image(new_scan_data.astype(SCANS_DTYPE), new_scan.affine),
         new_scan_path
     )
 
-    print(f'Created file: {new_scan_path}')
+    print(f'Created file: {new_scan_path[-20:]}')
 
 
 def create_mask_with_new_spacing(old_masks_path: str, new_mask_path: str, new_spacing=1.25,

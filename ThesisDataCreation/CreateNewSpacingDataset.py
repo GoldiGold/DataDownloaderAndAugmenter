@@ -22,7 +22,7 @@ def create_all_masks(old_masks_path, new_masks_path, new_spacing=1.25):
 def create_all_scans_of_single_type(old_scans_path, new_scans_path, new_masks_path, scan_type: str, new_spacing=1.25):
     old_scans_ids = os.listdir(old_scans_path)
 
-    for scan_id in old_scans_ids:
+    for i, scan_id in enumerate(old_scans_ids):
         old_scan_path = os.path.join(old_scans_path, scan_id, NEW_FILES[scan_type])
         new_scan_path = os.path.join(new_scans_path, scan_id, NEW_FILES[scan_type])
         new_mask_path = os.path.join(new_masks_path, scan_id, NEW_FILES['barin_masks'])
@@ -31,6 +31,9 @@ def create_all_scans_of_single_type(old_scans_path, new_scans_path, new_masks_pa
         os.makedirs(new_scan_path, exist_ok=True)
 
         create_scan_with_new_spacing(old_scan_path, new_scan_path, new_mask_path, new_spacing)
+
+        if i % (len(old_scans_ids) // 10) == 0:  # passed 10% notification
+            print(f'created {i} scans of {scan_type} type of scans')
 
 
 def create_all_scans_for_dataset(old_scans_paths: dict, new_scans_paths: dict, new_mask_path, new_spacing=1.25):
