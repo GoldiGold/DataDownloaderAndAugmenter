@@ -1,7 +1,7 @@
 TABLE_DIR = '/run/media/cheng/Maxwell_HD/Goldi_Folder/Tables/'
-
-FILES_KEYS = ['t1w', 'brain_mask', 'gt', 'general_mask', 'rgb']
-SCANS_KEYS = ['t1w', 'gt', 'general_mask', 'rgb']
+#  IMPORTANT: gt needs to be last because we create it after creating 'general_mask' files type.
+FILES_KEYS = ['t1w', 'brain_mask', 'general_mask', 'rgb', 'gt']
+SCANS_KEYS = ['t1w', 'general_mask', 'rgb', 'gt']
 DIFFUSION_KEYS = ['dwi', 'mask', 'bvals', 'bvecs']
 
 OLD_DATASET = '/media/chen/Maxwell_HD/Goldi_Folder/Dataset-from-HCP/'

@@ -48,4 +48,3 @@ def create_all_gt_scans(old_scans_path: str, new_scans_path: str):
 
         create_gt_scan(old_gt_path, new_gt_path, VALUE_TO_CHANNEL_MAPPING)
         print(f'created {scan_id} gt')
-        break
