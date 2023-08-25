@@ -99,23 +99,23 @@ def change_spacing_4D(img_in: nib.Nifti1Image, new_spacing=1.25):
 def temp_try_t1w_with_brain(brain_id, new_spacing=1.25):
     in_files_dict = {
         't1w': os.path.join(DATASET_07['t1w'], str(brain_id), FILES['t1w']['new']),
-        'brain_masks': os.path.join(DATASET_07['brain_masks'], str(brain_id), FILES['brain_masks']['new']),
+        'brain_mask': os.path.join(DATASET_07['brain_mask'], str(brain_id), FILES['brain_mask']['new']),
         'gt': None,
-        'general_masks': None,
+        'general_mask': None,
         'rgb': None}
     out_dir_dict = {
         't1w': os.path.join(DATASET_125['t1w'], str(brain_id)),
-        'brain_masks': os.path.join(DATASET_125['brain_masks'], str(brain_id)),
+        'brain_mask': os.path.join(DATASET_125['brain_mask'], str(brain_id)),
         'gt': None,
-        'general_masks': None,
+        'general_mask': None,
         'rgb': None}
     out_files_dict = {
         't1w': None if out_dir_dict['t1w'] is None else os.path.join(out_dir_dict['t1w'], FILES['t1w']['new']),
-        'brain_masks': None if out_dir_dict['brain_masks'] is None else os.path.join(out_dir_dict['brain_masks'],
-                                                                                     FILES['brain_masks']['new']),
+        'brain_mask': None if out_dir_dict['brain_mask'] is None else os.path.join(out_dir_dict['brain_mask'],
+                                                                                     FILES['brain_mask']['new']),
         'gt': None if out_dir_dict['gt'] is None else os.path.join(out_dir_dict['gt'], FILES['gt']['new']),
-        'general_masks': None if out_dir_dict['general_masks'] is None else os.path.join(out_dir_dict['general_masks'],
-                                                                                         FILES['general_masks']['new']),
+        'general_mask': None if out_dir_dict['general_mask'] is None else os.path.join(out_dir_dict['general_mask'],
+                                                                                         FILES['general_mask']['new']),
         'rgb': None if out_dir_dict['rgb'] is None else os.path.join(out_dir_dict['rgb'], FILES['rgb']['new'])}
 
     for dirs in out_dir_dict.values():
@@ -137,26 +137,26 @@ def update_single_brain(in_files_dict: dict, out_files_dict: dict, case_idx, new
     :param recreate: recreate when positive
     :return: 0 if didn't do anything (no brain mask), and nothing - prints a success message
     '''
-    if not os.path.isfile(in_files_dict['brain_masks']):
+    if not os.path.isfile(in_files_dict['brain_mask']):
         print('>>> processed case: {} NO BRAIN MASK {} THIS FILE DOESN\'T EXIST - '
-              'DID NOT CHANGED SIZES'.format(case_idx, in_files_dict['brain_masks']))
+              'DID NOT CHANGED SIZES'.format(case_idx, in_files_dict['brain_mask']))
         return 0
 
     print('Load mask ... ', end='')
 
-    if os.path.isfile(out_files_dict['brain_masks']) and not recreate:
-        mask_lq = nib.load(out_files_dict['brain_masks'])
+    if os.path.isfile(out_files_dict['brain_mask']) and not recreate:
+        mask_lq = nib.load(out_files_dict['brain_mask'])
     else:
         print('create mask')
         mask_hq = nib.load(
-            in_files_dict['brain_masks'])  # it was brain_mask before which is the binary map of where the brain
+            in_files_dict['brain_mask'])  # it was brain_mask before which is the binary map of where the brain
         # is in the skull check and see if it is the same as our brain_mask files or maybe they are bigger
         # (0.7 mm of precision instead of 1.25)
         mask_lq = mask_hq.get_fdata()
 
         mask_lq = change_spacing_4D(mask_hq, new_spacing=new_spacing)
         nib.save(nib.Nifti1Image((mask_lq.get_fdata()).astype(np.float32), mask_lq.affine),
-                 out_files_dict['brain_masks'])
+                 out_files_dict['brain_mask'])
 
     mask_lq_data = mask_lq.get_fdata()
 

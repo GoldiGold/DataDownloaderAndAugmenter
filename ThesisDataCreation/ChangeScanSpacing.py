@@ -91,7 +91,7 @@ def create_scan_with_new_spacing(old_scan_path: str, new_scan_path: str, new_mas
         return 0
 
     if not os.path.isfile(old_scan_path):
-        print(f'THIS SCAN FILE DOESN\'T EXIST {new_mask_path}')
+        print(f'THIS SCAN FILE DOESN\'T EXIST {old_scan_path}')
         return 0
 
     old_scan = nib.load(old_scan_path)

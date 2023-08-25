@@ -141,7 +141,7 @@ def create_mask_from_t1w(t1w_path: str, new_mask_path: str):
 if __name__ == '__main__':
     file_key = 't1w'
     # THIS WAS A TEST TO SEE IF IT WORKS, USING A FILE I ALREADY CONVERTED IN THE PAST (PATIENT 100206)
-    # create_mask_with_new_spacing(opj(DATASET_07['brain_masks'], '100206', NEW_FILES['brain_masks']), 'temp.nii.gz',
+    # create_mask_with_new_spacing(opj(DATASET_07['brain_mask'], '100206', NEW_FILES['brain_mask']), 'temp.nii.gz',
     #                              1.25)
     # create_scan_with_new_spacing(opj(DATASET_07['t1w'], '100206', NEW_FILES['t1w']), modified_mask_path='temp.nii.gz',
     #                              new_scan_path='scan_temp.nii.gz', new_spacing=1.25)
