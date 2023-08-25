@@ -77,9 +77,10 @@ def create_rgb_and_fa_files(diffusion_files_paths: dir, new_rgb_path: str, new_f
 
 
 def create_all_rgb_and_fa_scans(diffusion_files_dir_path: str, new_scans_path: str, new_masks_path: str, new_spacing=1.25):
-    diffusion_files_ids = os.listdir(diffusion_files_dir_path)
-
-    for scan_id in diffusion_files_ids:
+    diffusion_files_ids = sorted(os.listdir(diffusion_files_dir_path))
+    # TODO: REMOVE THE SORTED AND THE 29, IT'S ONLY BECAUSE THE PROGRAM CRUSHED B4
+    # TODO: MAYBE ADD SORTED TO EVERY os.listdir WE HAVE.
+    for scan_id in diffusion_files_ids[29:]:
         id_diffusion_files_path = os.path.join(diffusion_files_dir_path, scan_id, 'Diffusion')
         diffusion_files_paths = create_diffusion_files_dict(id_diffusion_files_path)
 

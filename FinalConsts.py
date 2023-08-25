@@ -20,6 +20,14 @@ DATASET_125 = {'t1w': '/media/chen/Maxwell_HD/Goldi_Folder/Dataset-T1w/1.25/T1w'
                'general_mask': '/media/chen/Maxwell_HD/Goldi_Folder/Dataset-T1w/1.25/General-Masks',
                'rgb': '/media/chen/Maxwell_HD/Goldi_Folder/Dataset-T1w/1.25/RGB'}
 
+DATASET_TENSORS = {'t1w': '/media/chen/Maxwell_HD/Goldi_Folder/Dataset-T1w/1.25/Tensors/T1w',
+                   'brain_mask': '/media/chen/Maxwell_HD/Goldi_Folder/Dataset-T1w/1.25/Tensors/Brain-Masks',
+                   'gt': '/media/chen/Maxwell_HD/Goldi_Folder/Dataset-T1w/1.25/Tensors/GT',
+                   'general_mask': '/media/chen/Maxwell_HD/Goldi_Folder/Dataset-T1w/1.25/Tensors/General-Masks',
+                   'rgb': '/media/chen/Maxwell_HD/Goldi_Folder/Dataset-T1w/1.25/Tensors/RGB'}
+
+
+
 RGB_NEW_SIZE = 'RGB-NOA-NEW-SIZE'
 
 DIFFUSION_FILES = {'dwi': 'data.nii.gz',
