@@ -59,7 +59,8 @@ def create_rgb_and_fa_image(diffusion_files_paths: dir, new_rgb_path: str, new_f
 
     fa_img = nib.Nifti1Image(FA.astype(np.float32), dwi_scan.affine)
     nib.save(fa_img, new_fa_path)
-
+    # for optimizing space: TODO: DELETE THIS COMMENT SO WE WILL SEE THE SPACE SAVING
+    # del fa_img
     print('Compute RGB ... ', end='')
     RGB = color_fa(FA, tensor_fit.evecs)
 
@@ -70,6 +71,9 @@ def create_rgb_and_fa_image(diffusion_files_paths: dir, new_rgb_path: str, new_f
 def create_rgb_and_fa_files(diffusion_files_paths: dir, new_rgb_path: str, new_fa_path: str, new_mask_path: str,
                             new_spacing=1.25, tensor_polarity: bool = True):
     # creating files the RGB anf FA files straight from the diffusion files without modifications
+    if not os.path.isfile(diffusion_files_paths['dwi']):
+        print(f'couldnt create rgb for file {new_rgb_path}')
+        return
     create_rgb_and_fa_image(diffusion_files_paths, new_rgb_path, new_fa_path)
     # modifying the newly created RGB&FA files to have the new spacing (that is why the old and new path are the same)
     create_scan_with_new_spacing(new_fa_path, new_fa_path, new_mask_path, new_spacing)
@@ -78,9 +82,9 @@ def create_rgb_and_fa_files(diffusion_files_paths: dir, new_rgb_path: str, new_f
 
 def create_all_rgb_and_fa_scans(diffusion_files_dir_path: str, new_scans_path: str, new_masks_path: str, new_spacing=1.25):
     diffusion_files_ids = sorted(os.listdir(diffusion_files_dir_path))
-    # TODO: REMOVE THE SORTED AND THE 29, IT'S ONLY BECAUSE THE PROGRAM CRUSHED B4
+    # TODO: REMOVE THE SORTED AND THE 394, IT'S ONLY BECAUSE THE PROGRAM CRUSHED B4
     # TODO: MAYBE ADD SORTED TO EVERY os.listdir WE HAVE.
-    for scan_id in diffusion_files_ids[29:]:
+    for scan_id in diffusion_files_ids[394:]:
         id_diffusion_files_path = os.path.join(diffusion_files_dir_path, scan_id, 'Diffusion')
         diffusion_files_paths = create_diffusion_files_dict(id_diffusion_files_path)
 
