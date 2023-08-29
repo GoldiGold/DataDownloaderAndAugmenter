@@ -2,7 +2,7 @@ import nibabel as nib
 import numpy as np
 import torch
 
-from FinalConsts import NEW_FILES, FILES_KEYS
+from FinalConsts import NEW_FILES, FILES_KEYS, torch_scan_type
 
 import os
 
@@ -17,7 +17,8 @@ def convert_scan_to_tensor(scan_path, tensor_path):
 
     #  moving the channels dimension to be the first one (index 0)
     scan = scan.permute(3, 0, 1, 2)  # dim3->dim0. dim0->dim1, dim1->dim2, dim2->dim3
-    scan = scan.type(torch.float32)
+    # scan = scan.type(torch.float32)
+    scan = scan.type(torch_scan_type)
     torch.save(scan, tensor_path)
 
 
@@ -33,8 +34,6 @@ def convert_all_scan_type_scans_to_tensors(scan_type: str, scans_path: str, tens
 
 def convert_all_scans_to_tensors(scans_paths: dict, tensors_paths: dict):
     for scan_type in FILES_KEYS:
-        if scan_type == 'rgb':
-            continue  # they are not ready yet
-        else:
+        if scan_type == 'wm':
             os.makedirs(tensors_paths[scan_type], exist_ok=True)
             convert_all_scan_type_scans_to_tensors(scan_type, scans_paths[scan_type], tensors_paths[scan_type])

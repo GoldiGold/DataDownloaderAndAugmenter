@@ -3,7 +3,7 @@ import numpy as np
 
 import os
 
-from FinalConsts import NEW_FILES, VALUE_TO_CHANNEL_MAPPING
+from FinalConsts import NEW_FILES, VALUE_TO_CHANNEL_MAPPING, VALUE_TO_CHANNEL_MAPPING_WM
 
 
 def create_gt_scan(old_gt_path: str, new_gt_path: str, value_to_channel_mapping: dict):
@@ -46,5 +46,5 @@ def create_all_gt_scans(old_scans_path: str, new_scans_path: str):
 
         os.makedirs(os.path.join(new_scans_path, scan_id), exist_ok=True)
 
-        create_gt_scan(old_gt_path, new_gt_path, VALUE_TO_CHANNEL_MAPPING)
+        create_gt_scan(old_gt_path, new_gt_path, VALUE_TO_CHANNEL_MAPPING_WM)
         print(f'created {scan_id} gt')
