@@ -49,7 +49,7 @@ def create_rgb_and_fa_image(diffusion_files_paths: dir, new_rgb_path: str, new_f
     tensor_model = dti.TensorModel(gradient_table_data)
     tensor_fit = tensor_model.fit(dwi_masked_data)
 
-    del dwi_masked_data
+    del dwi_masked_data, tensor_model # I added the tensor_model for the deletion
 
     print('Compute FA ... ', end='')
     FA = fractional_anisotropy(tensor_fit.evals).astype(np.float32)
@@ -59,8 +59,8 @@ def create_rgb_and_fa_image(diffusion_files_paths: dir, new_rgb_path: str, new_f
 
     fa_img = nib.Nifti1Image(FA.astype(np.float32), dwi_scan.affine)
     nib.save(fa_img, new_fa_path)
-    # for optimizing space: TODO: DELETE THIS COMMENT SO WE WILL SEE THE SPACE SAVING
-    # del fa_img
+    # for optimizing space: TODO: REMOVE THIS COMMENT SO WE WILL SEE THE SPACE SAVING
+    del fa_img
     print('Compute RGB ... ', end='')
     RGB = color_fa(FA, tensor_fit.evecs)
 
@@ -82,9 +82,8 @@ def create_rgb_and_fa_files(diffusion_files_paths: dir, new_rgb_path: str, new_f
 
 def create_all_rgb_and_fa_scans(diffusion_files_dir_path: str, new_scans_path: str, new_masks_path: str, new_spacing=1.25):
     diffusion_files_ids = sorted(os.listdir(diffusion_files_dir_path))
-    # TODO: REMOVE THE SORTED AND THE 394, IT'S ONLY BECAUSE THE PROGRAM CRUSHED B4
-    # TODO: MAYBE ADD SORTED TO EVERY os.listdir WE HAVE.
-    for scan_id in diffusion_files_ids[394:]:
+
+    for scan_id in diffusion_files_ids:
         id_diffusion_files_path = os.path.join(diffusion_files_dir_path, scan_id, 'Diffusion')
         diffusion_files_paths = create_diffusion_files_dict(id_diffusion_files_path)
 
